@@ -15,6 +15,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nonnull;
+import java.awt.*;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
@@ -146,7 +147,8 @@ public class TicketCreateListener extends ListenerAdapter {
 
         String ticketId = UUID.randomUUID().toString().substring(0, 4);
 
-        TextChannel ticketTextChannel = event.getGuild().createTextChannel("\uD83C\uDFAB-" + ticketId, category)
+        TextChannel ticketTextChannel = event.getGuild().createTextChannel("\uD83C\uDFAB-" + ticketId)
+                .setParent(category)
                 .setPosition(0)
                 .setTopic(event.getUser().getId())
                 .addRolePermissionOverride(event.getGuild().getPublicRole().getIdLong(),
@@ -194,7 +196,7 @@ public class TicketCreateListener extends ListenerAdapter {
 
         MessageEmbed messageEmbed = new EmbedBuilder()
                 .setTitle("ticket.ni.ls")
-                .setColor(0xff0000)
+                .setColor(Color.RED)
                 .setDescription("Ticket von " + event.getUser().getAsMention() + "\n:lock: - schließen\n:unlock: - öffnen\n:no_entry_sign: - löschen")
                 .build();
 

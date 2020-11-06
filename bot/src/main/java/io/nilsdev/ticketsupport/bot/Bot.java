@@ -1,9 +1,13 @@
 package io.nilsdev.ticketsupport.bot;
 
+import com.github.kaktushose.jda.commands.entities.JDACommands;
+import com.github.kaktushose.jda.commands.entities.JDACommandsBuilder;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provides;
+import io.nilsdev.ticketsupport.bot.command.EmbedFactory;
+import io.nilsdev.ticketsupport.bot.command.HelpMessageSender;
 import io.nilsdev.ticketsupport.bot.listeners.TicketCloseListener;
 import io.nilsdev.ticketsupport.bot.listeners.TicketCreateListener;
 import io.nilsdev.ticketsupport.bot.listeners.TicketDeleteListener;
@@ -12,6 +16,7 @@ import io.nilsdev.ticketsupport.bot.logging.AppLogger;
 import io.nilsdev.ticketsupport.bot.tasks.PresenceUpdateTask;
 import io.nilsdev.ticketsupport.common.config.Config;
 import io.nilsdev.ticketsupport.common.modules.CommonModule;
+import lombok.Getter;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import org.apache.logging.log4j.Level;
@@ -26,6 +31,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class Bot {
+
+    @Getter
+    private static Injector injector;
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
@@ -52,7 +60,7 @@ public class Bot {
                 .databaseName("node-ticket-ni-ls")
                 .build();
 
-        Injector injector = Guice.createInjector(new CommonModule(config));
+        injector = Guice.createInjector(new CommonModule(config));
 
         // ---
 
@@ -66,6 +74,18 @@ public class Bot {
         jda.awaitReady();
 
         // ---
+
+        JDACommands jdaCommands = new JDACommandsBuilder(jda)
+                .setEmbedFactory(new EmbedFactory())
+                .setHelpMessageSender(new HelpMessageSender())
+                .build();
+
+        jdaCommands.getSettings().setPrefix(".ticket ");
+        jdaCommands.getSettings().setIgnoreBots(true);
+        jdaCommands.getSettings().setIgnoreLabelCase(true);
+        jdaCommands.getSettings().setBotMentionPrefix(true);
+
+        // jdaCommands.getSettings().getHelpLabels().clear();
 
         // ---
 
