@@ -8,23 +8,27 @@
                 </LoggerNamePatternSelector>
             </PatternLayout>
         </Console>
-        <RollingRandomAccessFile name="File" fileName="logs/latest.log" filePattern="logs/%d{yyyy-MM-dd}-%i.log.gz" immediateFlush="true">
+        <RollingRandomAccessFile name="File" fileName="logs/latest.log" filePattern="logs/%d{yyyy-MM-dd}-%i.log.gz"
+                                 immediateFlush="true">
             <PatternLayout>
                 <LoggerNamePatternSelector defaultPattern="[%d{HH:mm:ss}] [%t/%-5p] [%logger]: %msg%n">
                     <PatternMatch key="" pattern="[%d{HH:mm:ss}] [%t/%-5p]: %msg%n"/>
                 </LoggerNamePatternSelector>
             </PatternLayout>
             <Policies>
-                <TimeBasedTriggeringPolicy />
-                <OnStartupTriggeringPolicy />
+                <TimeBasedTriggeringPolicy/>
+                <OnStartupTriggeringPolicy/>
             </Policies>
         </RollingRandomAccessFile>
+        <Sentry name="Sentry"
+                dsn="https://5a1e54deeca34f98a0209f52abf69492@o87610.ingest.sentry.io/5507658"/>
     </Appenders>
 
     <Loggers>
         <Root level="info">
-            <AppenderRef ref="Console" />
-            <AppenderRef ref="File" />
+            <AppenderRef ref="Sentry"/>
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="File"/>
         </Root>
     </Loggers>
 </Configuration>
