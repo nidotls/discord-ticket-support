@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="warn" packages="net.minecrell.terminalconsole.util">
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout>
+                <LoggerNamePatternSelector defaultPattern="[%d{HH:mm:ss}] [%t/%-5p] [%logger]: %msg%n">
+                    <PatternMatch key="" pattern="[%d{HH:mm:ss}] [%t/%-5p]: %msg%n"/>
+                </LoggerNamePatternSelector>
+            </PatternLayout>
+        </Console>
+        <RollingRandomAccessFile name="File" fileName="logs/latest.log" filePattern="logs/%d{yyyy-MM-dd}-%i.log.gz" immediateFlush="true">
+            <PatternLayout>
+                <LoggerNamePatternSelector defaultPattern="[%d{HH:mm:ss}] [%t/%-5p] [%logger]: %msg%n">
+                    <PatternMatch key="" pattern="[%d{HH:mm:ss}] [%t/%-5p]: %msg%n"/>
+                </LoggerNamePatternSelector>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+                <OnStartupTriggeringPolicy />
+            </Policies>
+        </RollingRandomAccessFile>
+    </Appenders>
+
+    <Loggers>
+        <Root level="info">
+            <AppenderRef ref="Console" />
+            <AppenderRef ref="File" />
+        </Root>
+    </Loggers>
+</Configuration>
