@@ -22,11 +22,6 @@ public class PresenceUpdateTask implements Runnable {
 
     @Override
     public void run() {
-        Integer memberCount = this.jda.getGuilds()
-                .stream()
-                .map(Guild::getMemberCount)
-                .reduce(0, Integer::sum);
-
         String version = "Unknown";
 
         try (InputStream inputStream = Bot.class.getClassLoader().getResourceAsStream("git.properties")) {
