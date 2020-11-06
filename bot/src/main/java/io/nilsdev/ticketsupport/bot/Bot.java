@@ -2,10 +2,8 @@ package io.nilsdev.ticketsupport.bot;
 
 import com.github.kaktushose.jda.commands.entities.JDACommands;
 import com.github.kaktushose.jda.commands.entities.JDACommandsBuilder;
-import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Provides;
 import io.nilsdev.ticketsupport.bot.command.EmbedFactory;
 import io.nilsdev.ticketsupport.bot.command.HelpMessageSender;
 import io.nilsdev.ticketsupport.bot.listeners.TicketCloseListener;
@@ -26,6 +24,13 @@ import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
 
 import javax.security.auth.login.LoginException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.util.Objects;
+import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -43,7 +48,30 @@ public class Bot {
         AppLogger.create();
         this.logger = LogManager.getLogger("Bot");
 
-        if (true) {
+        // ---
+
+        File file = new File("bot.properties");
+
+        if (!file.exists()) {
+            try (InputStream input = Bot.class.getClassLoader().getResourceAsStream("bot.properties")) {
+
+                Files.copy(Objects.requireNonNull(input), file.toPath());
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        Properties properties = new Properties();
+
+        try (InputStream input = new FileInputStream(file)) {
+            properties.load(input);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+
+        // ---
+
+        if (properties.getProperty("debug", "false").equalsIgnoreCase("true")) {
             final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
             final Configuration config = ctx.getConfiguration();
             config.getRootLogger().setLevel(Level.DEBUG);
@@ -53,18 +81,18 @@ public class Bot {
         // ---
 
         Config config = Config.builder()
-                .databaseHost("db.host01.iwmedia.dev")
-                .databasePort(27017)
-                .databaseUser("node-ticket-ni-ls")
-                .databasePassword("node-ticket-ni-ls")
-                .databaseName("node-ticket-ni-ls")
+                .databaseHost(properties.getProperty("mongodb.host", "db.host01.iwmedia.dev"))
+                .databasePort(Integer.parseInt(properties.getProperty("mongodb.port", "27017")))
+                .databaseUser(properties.getProperty("mongodb.database", "node-ticket-ni-ls"))
+                .databasePassword(properties.getProperty("mongodb.username", "node-ticket-ni-ls"))
+                .databaseName(properties.getProperty("mongodb.password", "node-ticket-ni-ls"))
                 .build();
 
         injector = Guice.createInjector(new CommonModule(config));
 
         // ---
 
-        JDA jda = JDABuilder.createDefault("NzUxNzg1ODIzNDE4MDU2ODE1.X1OJGw.AffVjQv2LC-FQ2yF_J0jzZgZjiE")
+        JDA jda = JDABuilder.createDefault(properties.getProperty("discord.token"))
                 .addEventListeners(injector.getInstance(TicketCloseListener.class))
                 .addEventListeners(injector.getInstance(TicketCreateListener.class))
                 .addEventListeners(injector.getInstance(TicketDeleteListener.class))
