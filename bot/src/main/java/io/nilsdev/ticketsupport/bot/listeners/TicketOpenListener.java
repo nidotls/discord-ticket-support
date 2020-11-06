@@ -130,7 +130,7 @@ public class TicketOpenListener extends ListenerAdapter {
 
         event.getChannel().getManager().setParent(supportCategory).complete();
 
-        Member memberById = event.getGuild().getMemberById(Objects.requireNonNull(event.getChannel().getTopic()));
+        Member memberById = event.getGuild().retrieveMemberById(Objects.requireNonNull(event.getChannel().getTopic())).complete();
 
         event.getChannel().upsertPermissionOverride(Objects.requireNonNull(memberById))
                 .grant(Permission.MESSAGE_WRITE)

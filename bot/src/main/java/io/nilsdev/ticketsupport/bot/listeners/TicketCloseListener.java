@@ -130,7 +130,7 @@ public class TicketCloseListener extends ListenerAdapter {
 
         event.getChannel().getManager().setParent(archiveCategory).complete();
 
-        Member memberById = event.getGuild().getMemberById(Objects.requireNonNull(event.getChannel().getTopic()));
+        Member memberById = event.getGuild().retrieveMemberById(Objects.requireNonNull(event.getChannel().getTopic())).complete();
 
         event.getChannel().upsertPermissionOverride(Objects.requireNonNull(memberById))
                 .deny(Permission.MESSAGE_WRITE)
