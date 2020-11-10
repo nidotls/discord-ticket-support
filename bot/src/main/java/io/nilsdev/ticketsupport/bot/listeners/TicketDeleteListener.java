@@ -1,6 +1,7 @@
 package io.nilsdev.ticketsupport.bot.listeners;
 
 import com.google.inject.Inject;
+import io.nilsdev.ticketsupport.bot.utils.MessageUtils;
 import io.nilsdev.ticketsupport.common.models.GuildModel;
 import io.nilsdev.ticketsupport.common.repositories.GuildRepository;
 import net.dv8tion.jda.api.Permission;
@@ -61,15 +62,8 @@ public class TicketDeleteListener extends ListenerAdapter {
         }
 
         // Remove Reaction
-        event.getReaction().removeReaction(event.getUser()).submit().whenComplete((aVoid, throwable) -> {
-            if (throwable != null) {
-                this.logger.throwing(throwable);
-                return;
-            }
-
-            this.logger.debug("Reaction removed successfully");
-        });
-
+        event.getReaction().removeReaction(event.getUser()).queue((aVoid) ->
+                this.logger.debug("Reaction removed successfully"));
 
         // Filter Bots
         if (event.getMember().getUser().isBot()) {
@@ -81,25 +75,11 @@ public class TicketDeleteListener extends ListenerAdapter {
         if (event.getMember().getRoles().stream().noneMatch(role -> role.getId().equals(guildModel.getTicketSupportPlusRoleId()))) {
             this.logger.debug("Ignored member has no support plus role: {}", event.getMember().getUser().getAsTag());
 
-            CompletableFuture<Message> messageCompletableFuture = event.getChannel().sendMessage(event.getMember().getUser().getAsMention() + ", du darfst keine Tickets löschen!").submit();
-
-            messageCompletableFuture.whenCompleteAsync((message, throwable) -> {
-                if (throwable != null) {
-                    this.logger.throwing(throwable);
-                    return;
-                }
-
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-                message.delete().submit();
-            });
+            MessageUtils.disposableMessage(this.logger, event.getChannel(), event.getMember().getUser().getAsMention() + ", du darfst keine Tickets löschen!");
             return;
         }
 
-        event.getChannel().delete().complete();
+        event.getChannel().delete()
+                .queue(aVoid -> this.logger.debug("Ticket deleted"), this.logger::throwing);
     }
 }
