@@ -1,21 +1,15 @@
 package io.nilsdev.ticketsupport.bot.listeners;
 
 import com.google.inject.Inject;
-import io.nilsdev.ticketsupport.bot.utils.MessageUtils;
+import io.nilsdev.ticketsupport.bot.utils.MessageUtil;
 import io.nilsdev.ticketsupport.common.models.GuildModel;
 import io.nilsdev.ticketsupport.common.repositories.GuildRepository;
-import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Category;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nonnull;
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 
 public class TicketDeleteListener extends ListenerAdapter {
 
@@ -75,7 +69,7 @@ public class TicketDeleteListener extends ListenerAdapter {
         if (event.getMember().getRoles().stream().noneMatch(role -> role.getId().equals(guildModel.getTicketSupportPlusRoleId()))) {
             this.logger.debug("Ignored member has no support plus role: {}", event.getMember().getUser().getAsTag());
 
-            MessageUtils.disposableMessage(this.logger, event.getChannel(), event.getMember().getUser().getAsMention() + ", du darfst keine Tickets löschen!");
+            MessageUtil.disposableMessage(this.logger, event.getChannel(), event.getMember().getUser().getAsMention() + ", du darfst keine Tickets löschen!");
             return;
         }
 

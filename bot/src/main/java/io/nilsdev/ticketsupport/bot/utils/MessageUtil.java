@@ -3,7 +3,7 @@ package io.nilsdev.ticketsupport.bot.utils;
 import net.dv8tion.jda.api.entities.TextChannel;
 import org.apache.logging.log4j.Logger;
 
-public class MessageUtils {
+public class MessageUtil {
 
     public static void disposableMessage(Logger logger, TextChannel channel, String text) {
         channel.sendMessage(text).queue(message -> {

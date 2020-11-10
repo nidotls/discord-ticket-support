@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.entities.*;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Objects;
 
 @CommandController
 public class InstallCommand {
@@ -43,7 +44,7 @@ public class InstallCommand {
 
         String log = "**Rollen:**\n";
 
-        {
+        try {
             Role roleById = guildModel.getTicketSupportRoleId() != null
                     ? event.getGuild().getRoleById(guildModel.getTicketSupportRoleId())
                     : null;
@@ -64,8 +65,12 @@ public class InstallCommand {
             } else {
                 log += ":white_check_mark: `" + roleById.getName() + "` existiert\n";
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+            log += ":bug: `Ticket Support` konnte nicht erstellt werden\n";
         }
-        {
+
+        try {
             Role roleById = guildModel.getTicketSupportPlusRoleId() != null
                     ? event.getGuild().getRoleById(guildModel.getTicketSupportPlusRoleId())
                     : null;
@@ -86,8 +91,12 @@ public class InstallCommand {
             } else {
                 log += ":white_check_mark: `" + roleById.getName() + "` existiert\n";
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+            log += ":bug: `Ticket Support+` konnte nicht erstellt werden\n";
         }
-        {
+
+        try {
             Role roleById = guildModel.getTicketSupportBanRoleId() != null
                     ? event.getGuild().getRoleById(guildModel.getTicketSupportBanRoleId())
                     : null;
@@ -108,13 +117,16 @@ public class InstallCommand {
             } else {
                 log += ":white_check_mark: `" + roleById.getName() + "` existiert\n";
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+            log += ":bug: `Ticket Sperre` konnte nicht erstellt werden\n";
         }
 
         // ---
 
         log += "\n**Kategorien:**\n";
-        Category supportCategory;
-        {
+        Category supportCategory = null;
+        try {
             Category categoryById = guildModel.getTicketSupportCategoryId() != null
                     ? event.getGuild().getCategoryById(guildModel.getTicketSupportCategoryId())
                     : null;
@@ -144,8 +156,12 @@ public class InstallCommand {
                 log += ":white_check_mark: `" + categoryById.getName() + "` existiert\n";
                 supportCategory = categoryById;
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+            log += ":bug: `\uD83C\uDFAB Support Tickets` konnte nicht erstellt werden\n";
         }
-        {
+
+        try {
             Category categoryById = guildModel.getTicketArchiveCategoryId() != null
                     ? event.getGuild().getCategoryById(guildModel.getTicketArchiveCategoryId())
                     : null;
@@ -173,13 +189,16 @@ public class InstallCommand {
             } else {
                 log += ":white_check_mark: `" + categoryById.getName() + "` existiert\n";
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+            log += ":bug: `\uD83C\uDFAB Archiv` konnte nicht erstellt werden\n";
         }
 
         // ---
 
         log += "\n**Textkanäle:**\n";
-        TextChannel ticketTextChannel;
-        {
+        TextChannel ticketTextChannel = null;
+        try {
             TextChannel textChannelById = guildModel.getTicketCreateTextChannelId() != null
                     ? event.getGuild().getTextChannelById(guildModel.getTicketCreateTextChannelId())
                     : null;
@@ -209,15 +228,18 @@ public class InstallCommand {
                 log += ":white_check_mark: `" + textChannelById.getName() + "` existiert\n";
                 ticketTextChannel = textChannelById;
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+            log += ":bug: `\uD83C\uDFAB-ticket-erstellen` konnte nicht erstellt werden\n";
         }
 
         // ---
 
         log += "\n**Textnachrichten:**\n";
 
-        {
+        try {
             Message messageById = guildModel.getTicketCreateTextMessageId() != null
-                    ? ticketTextChannel.retrieveMessageById(guildModel.getTicketCreateTextMessageId()).complete()
+                    ? Objects.requireNonNull(ticketTextChannel).retrieveMessageById(guildModel.getTicketCreateTextMessageId()).complete()
                     : null;
 
             if (messageById == null) {
@@ -231,7 +253,7 @@ public class InstallCommand {
                         )
                         .build();
 
-                Message message = ticketTextChannel.sendMessage(messageEmbed).complete();
+                Message message = Objects.requireNonNull(ticketTextChannel).sendMessage(messageEmbed).complete();
                 message.addReaction("\uD83D\uDCE9").complete();
 
                 guildModel.setTicketCreateTextMessageId(message.getId());
@@ -245,6 +267,9 @@ public class InstallCommand {
             } else {
                 log += ":white_check_mark: :envelope_with_arrow: existiert\n";
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+            log += ":bug: `envelope_with_arrow` konnte nicht erstellt werden\n";
         }
 
         guildRepository.save(guildModel);

@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -18,7 +19,7 @@ public class StatsCommand {
 
     @Command("stats")
     public void onCommand(CommandEvent event) {
-        if(!event.getGuild().getId().equalsIgnoreCase("617339081168388110")) {
+        if(!this.isAuthorizedGuild(event.getGuild()) && !this.isAuthorizedMember(event.getMember())) {
             event.reply("Dieser Befehl geht nur auf dem `ni.ls` Discord. (`.ticket discord`)");
             return;
         }
@@ -37,5 +38,15 @@ public class StatsCommand {
                 .addField("Entwickler", "nils#2488", true);
 
         event.reply(embedBuilder);
+    }
+
+    private boolean isAuthorizedGuild(Guild guild) {
+        return guild.getIdLong() == 617339081168388110L;
+    }
+
+    private boolean isAuthorizedMember(@Nullable Member member) {
+        if(member == null) return false;
+
+        return member.getIdLong() == 210810160015212554L;
     }
 }

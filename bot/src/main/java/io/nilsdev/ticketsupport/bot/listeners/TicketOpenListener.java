@@ -1,13 +1,12 @@
 package io.nilsdev.ticketsupport.bot.listeners;
 
 import com.google.inject.Inject;
-import io.nilsdev.ticketsupport.bot.utils.MessageUtils;
+import io.nilsdev.ticketsupport.bot.utils.MessageUtil;
 import io.nilsdev.ticketsupport.common.models.GuildModel;
 import io.nilsdev.ticketsupport.common.repositories.GuildRepository;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Category;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.apache.logging.log4j.LogManager;
@@ -85,7 +84,7 @@ public class TicketOpenListener extends ListenerAdapter {
         if (event.getMember().getRoles().stream().noneMatch(role -> role.getId().equals(guildModel.getTicketSupportRoleId()) || role.getId().equals(guildModel.getTicketSupportPlusRoleId()))) {
             this.logger.debug("Ignored member has no support role: {}", event.getMember().getUser().getAsTag());
 
-            MessageUtils.disposableMessage(this.logger, event.getChannel(), event.getMember().getUser().getAsMention() + ", du darfst keine Tickets öffnen!");
+            MessageUtil.disposableMessage(this.logger, event.getChannel(), event.getMember().getUser().getAsMention() + ", du darfst keine Tickets öffnen!");
             return;
         }
 
@@ -94,7 +93,7 @@ public class TicketOpenListener extends ListenerAdapter {
         if (supportCategory == null || supportCategory.getChannels().size() >= 50) {
             this.logger.debug("Ignored too many tickets: {}", supportCategory);
 
-            MessageUtils.disposableMessage(this.logger, event.getChannel(), event.getMember().getUser().getAsMention() + ", Ticket konnte nicht geöffnet werden, Kategorie voll!");
+            MessageUtil.disposableMessage(this.logger, event.getChannel(), event.getMember().getUser().getAsMention() + ", Ticket konnte nicht geöffnet werden, Kategorie voll!");
             return;
         }
 

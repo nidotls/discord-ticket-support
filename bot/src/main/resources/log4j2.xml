@@ -20,8 +20,7 @@
                 <OnStartupTriggeringPolicy/>
             </Policies>
         </RollingRandomAccessFile>
-        <Sentry name="Sentry"
-                dsn="https://5a1e54deeca34f98a0209f52abf69492@o87610.ingest.sentry.io/5507658"/>
+        <Sentry name="Sentry"/>
     </Appenders>
 
     <Loggers>

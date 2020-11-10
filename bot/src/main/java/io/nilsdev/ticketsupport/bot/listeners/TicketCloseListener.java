@@ -1,7 +1,7 @@
 package io.nilsdev.ticketsupport.bot.listeners;
 
 import com.google.inject.Inject;
-import io.nilsdev.ticketsupport.bot.utils.MessageUtils;
+import io.nilsdev.ticketsupport.bot.utils.MessageUtil;
 import io.nilsdev.ticketsupport.common.models.GuildModel;
 import io.nilsdev.ticketsupport.common.repositories.GuildRepository;
 import net.dv8tion.jda.api.Permission;
@@ -84,7 +84,7 @@ public class TicketCloseListener extends ListenerAdapter {
         if (event.getMember().getRoles().stream().noneMatch(role -> role.getId().equals(guildModel.getTicketSupportRoleId()) || role.getId().equals(guildModel.getTicketSupportPlusRoleId()))) {
             this.logger.debug("Ignored member has no support role: {}", event.getMember().getUser().getAsTag());
 
-            MessageUtils.disposableMessage(this.logger, event.getChannel(), event.getMember().getUser().getAsMention() + ", du darfst keine Tickets schließen!");
+            MessageUtil.disposableMessage(this.logger, event.getChannel(), event.getMember().getUser().getAsMention() + ", du darfst keine Tickets schließen!");
             return;
         }
 
@@ -93,7 +93,7 @@ public class TicketCloseListener extends ListenerAdapter {
         if (archiveCategory == null || archiveCategory.getChannels().size() >= 50) {
             this.logger.debug("Ignored too many tickets: {}", archiveCategory);
 
-            MessageUtils.disposableMessage(this.logger, event.getChannel(), event.getMember().getUser().getAsMention() + ", Ticket konnte nicht geschlossen werden, Archiv voll!");
+            MessageUtil.disposableMessage(this.logger, event.getChannel(), event.getMember().getUser().getAsMention() + ", Ticket konnte nicht geschlossen werden, Archiv voll!");
             return;
         }
 
