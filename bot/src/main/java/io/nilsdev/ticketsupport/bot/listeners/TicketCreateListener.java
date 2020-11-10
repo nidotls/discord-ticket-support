@@ -1,6 +1,7 @@
 package io.nilsdev.ticketsupport.bot.listeners;
 
 import com.google.inject.Inject;
+import io.nilsdev.ticketsupport.bot.utils.MessageUtil;
 import io.nilsdev.ticketsupport.common.models.GuildModel;
 import io.nilsdev.ticketsupport.common.repositories.GuildRepository;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -17,7 +18,6 @@ import org.apache.logging.log4j.Logger;
 import javax.annotation.Nonnull;
 import java.awt.*;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 
 public class TicketCreateListener extends ListenerAdapter {
 
@@ -78,22 +78,7 @@ public class TicketCreateListener extends ListenerAdapter {
         if (event.getMember().getRoles().stream().anyMatch(role -> role.getId().equals(guildModel.getTicketSupportBanRoleId()))) {
             this.logger.debug("Ignored member hast ban role: {}", event.getMember().getUser().getAsTag());
 
-            CompletableFuture<Message> messageCompletableFuture = event.getChannel().sendMessage(event.getMember().getUser().getAsMention() + ", du darfst keine Tickets erstellen!").submit();
-
-            messageCompletableFuture.whenCompleteAsync((message, throwable) -> {
-                if (throwable != null) {
-                    this.logger.throwing(throwable);
-                    return;
-                }
-
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-                message.delete().submit();
-            });
+            MessageUtil.disposableMessage(this.logger, event.getChannel(), event.getMember().getUser().getAsMention() + ", du darfst keine Tickets erstellen!");
             return;
         }
 
@@ -102,22 +87,7 @@ public class TicketCreateListener extends ListenerAdapter {
         if (category == null || category.getChannels().size() >= 50) {
             this.logger.debug("Ignored too many tickets: {}", category);
 
-            CompletableFuture<Message> messageCompletableFuture = event.getChannel().sendMessage(event.getMember().getUser().getAsMention() + ", derzeit sind zu viele Tickets offen, probiere es in ein paar Minuten erneut!").submit();
-
-            messageCompletableFuture.whenCompleteAsync((message, throwable) -> {
-                if (throwable != null) {
-                    this.logger.throwing(throwable);
-                    return;
-                }
-
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-                message.delete().submit();
-            });
+            MessageUtil.disposableMessage(this.logger, event.getChannel(), event.getMember().getUser().getAsMention() + ", derzeit sind zu viele Tickets offen, probiere es in ein paar Minuten erneut!");
             return;
         }
 
@@ -126,22 +96,7 @@ public class TicketCreateListener extends ListenerAdapter {
         if (textChannel.isPresent()) {
             this.logger.debug("Ignored already opened ticket: {}", textChannel.get().getAsMention());
 
-            CompletableFuture<Message> messageCompletableFuture = event.getChannel().sendMessage(event.getMember().getUser().getAsMention() + ", du hast bereits ein offenes Ticket, " + textChannel.get().getAsMention()).submit();
-
-            messageCompletableFuture.whenCompleteAsync((message, throwable) -> {
-                if (throwable != null) {
-                    this.logger.throwing(throwable);
-                    return;
-                }
-
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-                message.delete().submit();
-            });
+            MessageUtil.disposableMessage(this.logger, event.getChannel(), event.getMember().getUser().getAsMention() + ", du hast bereits ein offenes Ticket, " + textChannel.get().getAsMention());
             return;
         }
 

@@ -6,12 +6,14 @@ import com.github.kaktushose.jda.commands.entities.CommandEvent;
 import io.nilsdev.ticketsupport.bot.Bot;
 import io.nilsdev.ticketsupport.common.models.GuildModel;
 import io.nilsdev.ticketsupport.common.repositories.GuildRepository;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.Category;
+import net.dv8tion.jda.api.entities.GuildChannel;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.exceptions.HierarchyException;
 
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.Optional;
 
 @CommandController
 public class UninstallCommand {
@@ -41,7 +43,7 @@ public class UninstallCommand {
 
         // ---
 
-        if(guildModel == null) {
+        if (guildModel == null) {
             event.reply("Ich bin auf diesem Discord-Server nicht installiert.");
             return;
         }
@@ -50,80 +52,97 @@ public class UninstallCommand {
 
         String log = "**Rollen:**\n";
 
-        {
+        try {
             Role roleById = guildModel.getTicketSupportRoleId() != null
                     ? event.getGuild().getRoleById(guildModel.getTicketSupportRoleId())
                     : null;
             if (guildModel.getTicketSupportRoleId() != null || roleById != null) {
                 boolean shouldExists = roleById != null;
 
-                if(shouldExists) {
+                if (shouldExists) {
                     roleById.delete().complete();
                 }
 
                 guildModel.setTicketSupportRoleId(null);
 
                 log += shouldExists
-                        ? ":arrows_counterclockwise: `" + roleById.getName() + "` wurde neu erstellt\n"
+                        ? ":no_entry_sign: `" + roleById.getName() + "` wurde entfernt\n"
                         : ":o: `ticketSupportRoleId` wurde aus der DB entfernt\n";
             } else {
                 log += ":x: `ticketSupportRoleId` hat nicht existiert\n";
             }
+        } catch (HierarchyException e) {
+            log += ":bug: `ticketSupportRoleId` konnte nicht entfernt werden (Rolle höher als Bot Rolle)\n";
+        } catch (Exception e) {
+            e.printStackTrace();
+            log += ":bug: `ticketSupportRoleId` konnte nicht entfernt werden\n";
         }
-        {
+
+        try {
             Role roleById = guildModel.getTicketSupportPlusRoleId() != null
                     ? event.getGuild().getRoleById(guildModel.getTicketSupportPlusRoleId())
                     : null;
             if (guildModel.getTicketSupportPlusRoleId() != null || roleById != null) {
                 boolean shouldExists = roleById != null;
 
-                if(shouldExists) {
+                if (shouldExists) {
                     roleById.delete().complete();
                 }
 
                 guildModel.setTicketSupportPlusRoleId(null);
 
                 log += shouldExists
-                        ? ":arrows_counterclockwise: `" + roleById.getName() + "` wurde neu erstellt\n"
+                        ? ":no_entry_sign: `" + roleById.getName() + "` wurde entfernt\n"
                         : ":o: `ticketSupportPlusRoleId` wurde aus der DB entfernt\n";
             } else {
                 log += ":x: `ticketSupportPlusRoleId` hat nicht existiert\n";
             }
+        } catch (HierarchyException e) {
+            log += ":bug: `ticketSupportRoleId` konnte nicht entfernt werden (Rolle höher als Bot Rolle)\n";
+        } catch (Exception e) {
+            e.printStackTrace();
+            log += ":bug: `ticketSupportPlusRoleId` konnte nicht entfernt werden\n";
         }
-        {
+
+        try {
             Role roleById = guildModel.getTicketSupportBanRoleId() != null
                     ? event.getGuild().getRoleById(guildModel.getTicketSupportBanRoleId())
                     : null;
             if (guildModel.getTicketSupportBanRoleId() != null || roleById != null) {
                 boolean shouldExists = roleById != null;
 
-                if(shouldExists) {
+                if (shouldExists) {
                     roleById.delete().complete();
                 }
 
                 guildModel.setTicketSupportBanRoleId(null);
 
                 log += shouldExists
-                        ? ":arrows_counterclockwise: `" + roleById.getName() + "` wurde neu erstellt\n"
+                        ? ":no_entry_sign: `" + roleById.getName() + "` wurde entfernt\n"
                         : ":o: `ticketSupportBanRoleId` wurde aus der DB entfernt\n";
             } else {
                 log += ":x: `ticketSupportBanRoleId` hat nicht existiert\n";
             }
+        } catch (HierarchyException e) {
+            log += ":bug: `ticketSupportRoleId` konnte nicht entfernt werden (Rolle höher als Bot Rolle)\n";
+        } catch (Exception e) {
+            e.printStackTrace();
+            log += ":bug: `ticketSupportBanRoleId` konnte nicht entfernt werden\n";
         }
 
         // ---
 
         log += "\n**Kategorien:**\n";
-        {
+        try {
             Category categoryById = guildModel.getTicketSupportCategoryId() != null
                     ? event.getGuild().getCategoryById(guildModel.getTicketSupportCategoryId())
                     : null;
             if (guildModel.getTicketSupportCategoryId() != null || categoryById != null) {
                 boolean shouldExists = categoryById != null;
 
-                if(shouldExists) {
+                if (shouldExists) {
                     for (GuildChannel channel : categoryById.getChannels()) {
-                        if(channel.getId().equals(guildModel.getTicketCreateTextChannelId())) continue;
+                        if (channel.getId().equals(guildModel.getTicketCreateTextChannelId())) continue;
 
                         channel.delete().complete();
                     }
@@ -138,8 +157,12 @@ public class UninstallCommand {
             } else {
                 log += ":x: `ticketSupportCategoryId` hat nicht existiert\n";
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+            log += ":bug: `ticketSupportCategoryId` konnte nicht entfernt werden\n";
         }
-        {
+
+        try {
             Category categoryById = guildModel.getTicketArchiveCategoryId() != null
                     ? event.getGuild().getCategoryById(guildModel.getTicketArchiveCategoryId())
                     : null;
@@ -147,7 +170,7 @@ public class UninstallCommand {
 
                 boolean shouldExists = categoryById != null;
 
-                if(shouldExists) {
+                if (shouldExists) {
                     for (GuildChannel channel : categoryById.getChannels()) {
                         channel.delete().complete();
                     }
@@ -162,19 +185,22 @@ public class UninstallCommand {
             } else {
                 log += ":x: `ticketArchiveCategoryId` hat nicht existiert\n";
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+            log += ":bug: `ticketArchiveCategoryId` konnte nicht entfernt werden\n";
         }
 
         // ---
 
         log += "\n**Textkanäle:**\n";
-        {
+        try {
             TextChannel textChannelById = guildModel.getTicketCreateTextChannelId() != null
                     ? event.getGuild().getTextChannelById(guildModel.getTicketCreateTextChannelId())
                     : null;
             if (guildModel.getTicketCreateTextChannelId() != null || textChannelById != null) {
                 boolean shouldExists = textChannelById != null;
 
-                if(shouldExists) {
+                if (shouldExists) {
                     textChannelById.delete().complete();
                 }
 
@@ -186,6 +212,9 @@ public class UninstallCommand {
             } else {
                 log += ":x: `ticketCreateTextChannelId` hat nicht existiert\n";
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+            log += ":bug: `ticketCreateTextChannelId` konnte nicht entfernt werden\n";
         }
 
         // ---
@@ -194,6 +223,14 @@ public class UninstallCommand {
 
         guildRepository.save(guildModel);
 
-        event.reply(log);
+        try {
+            event.reply(log);
+        } catch (Exception e) {
+            Optional<TextChannel> optionalGuildChannel = event.getGuild().getTextChannels().stream().findFirst();
+
+            if(!optionalGuildChannel.isPresent()) return;
+
+            optionalGuildChannel.get().sendMessage(log).queue();
+        }
     }
 }

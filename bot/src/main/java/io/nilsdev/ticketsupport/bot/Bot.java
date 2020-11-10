@@ -12,8 +12,10 @@ import io.nilsdev.ticketsupport.bot.listeners.TicketDeleteListener;
 import io.nilsdev.ticketsupport.bot.listeners.TicketOpenListener;
 import io.nilsdev.ticketsupport.bot.logging.AppLogger;
 import io.nilsdev.ticketsupport.bot.tasks.PresenceUpdateTask;
+import io.nilsdev.ticketsupport.bot.utils.VersionUtil;
 import io.nilsdev.ticketsupport.common.config.Config;
 import io.nilsdev.ticketsupport.common.modules.CommonModule;
+import io.sentry.Sentry;
 import lombok.Getter;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -77,6 +79,21 @@ public class Bot {
             config.getRootLogger().setLevel(Level.DEBUG);
             ctx.updateLoggers();
         }
+
+        // ---
+
+        if (properties.getProperty("sentry.enabled", "false").equalsIgnoreCase("true")) {
+            Sentry.init(options -> {
+                options.setDsn(properties.getProperty("sentry.dsn"));
+                options.setRelease(VersionUtil.getVersion());
+            });
+        } else {
+            Sentry.init(options -> {
+                options.setDsn("");
+                options.setRelease(VersionUtil.getVersion());
+            });
+        }
+
 
         // ---
 
