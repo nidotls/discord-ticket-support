@@ -4,14 +4,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>parent</artifactId>
-        <groupId>io.nilsdev.ticketsupport</groupId>
+        <groupId>io.nilsdev.discordticketsupport</groupId>
         <version>1.0.6-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>bot</artifactId>
 
-    <name>TicketSupportBot</name>
+    <name>DiscordTicketSupportBot</name>
     <description/>
 
     <properties>
@@ -24,6 +24,10 @@
             <id>jcenter</id>
             <name>jcenter-bintray</name>
             <url>https://jcenter.bintray.com</url>
+        </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
         </repository>
     </repositories>
 
@@ -40,7 +44,7 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>io.nilsdev.ticketsupport</groupId>
+            <groupId>io.nilsdev.discordticketsupport</groupId>
             <artifactId>common</artifactId>
             <version>1.0.6-SNAPSHOT</version>
             <scope>compile</scope>
@@ -48,7 +52,7 @@
         <dependency>
             <groupId>com.github.kaktushose</groupId>
             <artifactId>jda-commands</artifactId>
-            <version>1.0.0</version>
+            <version>v.1.0.0</version>
         </dependency>
         <dependency>
             <groupId>io.sentry</groupId>
@@ -126,7 +130,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>io.nilsdev.ticketsupport.bot.Bot</mainClass>
+                            <mainClass>io.nilsdev.discordticketsupport.bot.Bot</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

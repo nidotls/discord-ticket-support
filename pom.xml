@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>io.nilsdev.ticketsupport</groupId>
+    <groupId>io.nilsdev.discordticketsupport</groupId>
     <artifactId>parent</artifactId>
     <packaging>pom</packaging>
     <version>1.0.6-SNAPSHOT</version>
@@ -14,7 +14,7 @@
         <module>bot</module>
     </modules>
 
-    <name>TicketSupport</name>
+    <name>DiscordTicketSupport</name>
     <description/>
 
     <developers>
@@ -53,8 +53,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>8</source>
+                    <target>8</target>
                     <encoding>utf-8</encoding>
                 </configuration>
             </plugin>
@@ -66,6 +66,9 @@
                     <gpgSignTag>true</gpgSignTag>
                     <gpgSignCommit>true</gpgSignCommit>
                     <allowSnapshots>true</allowSnapshots>
+                    <gitFlowConfig>
+                        <productionBranch>main</productionBranch>
+                    </gitFlowConfig>
                 </configuration>
             </plugin>
             <plugin>
@@ -91,6 +94,14 @@
                 <configuration>
                     <offline>true</offline>
                     <generateGitPropertiesFile>true</generateGitPropertiesFile>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <outputDirectory>${project.parent.basedir}/artifacts/</outputDirectory>
                 </configuration>
             </plugin>
         </plugins>
