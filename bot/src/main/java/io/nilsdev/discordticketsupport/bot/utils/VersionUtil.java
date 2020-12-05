@@ -27,7 +27,7 @@ public class VersionUtil {
 
             properties.load(inputStream);
 
-            version = properties.getProperty("git.commit.id.describe");
+            version = properties.getProperty("git.build.version");
         } catch (IOException e) {
             e.printStackTrace();
         }
