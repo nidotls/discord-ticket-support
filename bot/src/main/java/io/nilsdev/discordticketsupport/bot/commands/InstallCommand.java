@@ -249,9 +249,15 @@ public class InstallCommand {
         log += "\n**Textnachrichten:**\n";
 
         try {
-            Message messageById = guildModel.getTicketCreateTextMessageId() != null
-                    ? Objects.requireNonNull(ticketTextChannel).retrieveMessageById(guildModel.getTicketCreateTextMessageId()).complete()
-                    : null;
+            Message messageById;
+
+            try {
+                messageById = guildModel.getTicketCreateTextMessageId() != null
+                        ? Objects.requireNonNull(ticketTextChannel).retrieveMessageById(guildModel.getTicketCreateTextMessageId()).complete()
+                        : null;
+            } catch (Exception e) {
+                messageById = null;
+            }
 
             if (messageById == null) {
                 boolean shouldExists = guildModel.getTicketCreateTextMessageId() != null;
