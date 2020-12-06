@@ -15,15 +15,20 @@ import com.google.inject.Inject;
 import io.nilsdev.discordticketsupport.bot.utils.MessageUtil;
 import io.nilsdev.discordticketsupport.common.models.GuildModel;
 import io.nilsdev.discordticketsupport.common.repositories.GuildRepository;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Category;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nonnull;
+import java.awt.*;
+import java.util.Date;
 import java.util.Objects;
 
 public class TicketCloseListener extends ListenerAdapter {
@@ -110,12 +115,43 @@ public class TicketCloseListener extends ListenerAdapter {
 
         event.getChannel().getManager().setParent(archiveCategory).complete();
 
-        Member memberById = event.getGuild().retrieveMemberById(Objects.requireNonNull(event.getChannel().getTopic())).complete();
+        try {
+            Member memberById = event.getGuild().retrieveMemberById(Objects.requireNonNull(event.getChannel().getTopic())).complete();
 
-        event.getChannel().upsertPermissionOverride(Objects.requireNonNull(memberById))
-                .deny(Permission.MESSAGE_WRITE)
-                .complete();
+            event.getChannel().upsertPermissionOverride(Objects.requireNonNull(memberById))
+                    .deny(Permission.MESSAGE_WRITE)
+                    .complete();
+        } catch (NullPointerException ignored) { }
 
         event.getChannel().sendMessage(event.getUser().getAsMention() + " hat das Ticket geschlossen!").complete();
+
+        // Log
+
+        if (guildModel.getTicketLogTextChannelId() == null) return;
+
+        TextChannel logTextChannel = event.getGuild().getTextChannelById(guildModel.getTicketLogTextChannelId());
+
+        if (logTextChannel == null) return;
+
+        EmbedBuilder embedBuilder = new EmbedBuilder();
+
+        String userMention;
+
+        try {
+            User user = event.getJDA().retrieveUserById(Objects.requireNonNull(event.getChannel().getTopic())).complete();
+            userMention = user == null ? "Undefined" : user.getAsMention();
+        } catch (Exception e) {
+            e.printStackTrace();
+            userMention = "Undefined";
+        }
+
+        embedBuilder.setTitle("Closed Ticket `" + event.getChannel().getName() + "`");
+        embedBuilder.setColor(Color.ORANGE);
+        embedBuilder.addField("Ticket", event.getChannel().getAsMention(), false);
+        embedBuilder.addField("Supporter", event.getUser().getAsMention(), true);
+        embedBuilder.addField("User", userMention, true);
+        embedBuilder.setTimestamp(new Date().toInstant());
+
+        logTextChannel.sendMessage(embedBuilder.build()).queue();
     }
 }
