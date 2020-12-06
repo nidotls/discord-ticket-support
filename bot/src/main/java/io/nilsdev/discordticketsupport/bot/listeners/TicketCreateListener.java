@@ -175,5 +175,23 @@ public class TicketCreateListener extends ListenerAdapter {
         message.pin().complete();
 
         ticketTextChannel.sendMessage("Hey " + event.getUser().getAsMention() + ", bitte schildere kurz dein Problem, damit dir ein Supporter helfen kann!").complete();
+
+        // Log
+
+        if (guildModel.getTicketLogTextChannelId() == null) return;
+
+        TextChannel logTextChannel = event.getGuild().getTextChannelById(guildModel.getTicketLogTextChannelId());
+
+        if (logTextChannel == null) return;
+
+        EmbedBuilder embedBuilder = new EmbedBuilder();
+
+        embedBuilder.setTitle("Opened Ticket `" + ticketTextChannel.getName() + "`");
+        embedBuilder.setColor(Color.GREEN);
+        embedBuilder.addField("Ticket", ticketTextChannel.getAsMention(), false);
+        embedBuilder.addField("User", event.getUser().getAsMention(), true);
+        embedBuilder.setTimestamp(new Date().toInstant());
+
+        logTextChannel.sendMessage(embedBuilder.build()).queue();
     }
 }

@@ -283,6 +283,55 @@ public class InstallCommand {
             log += ":bug: `envelope_with_arrow` konnte nicht erstellt werden\n";
         }
 
+        // ---
+
+        log += "\n**Log Textkanal:**\n";
+        try {
+            TextChannel textChannelById = guildModel.getTicketLogTextChannelId() != null
+                    ? event.getGuild().getTextChannelById(guildModel.getTicketLogTextChannelId())
+                    : null;
+            if (textChannelById == null) {
+                boolean shouldExists = guildModel.getTicketLogTextChannelId() != null;
+
+                TextChannel textChannel = event.getGuild().createTextChannel("\uD83C\uDFAB-ticket-log")
+                        .addRolePermissionOverride(event.getGuild().getPublicRole().getIdLong(),
+                                Collections.emptyList(),
+                                Arrays.asList(
+                                        Permission.VIEW_CHANNEL,
+                                        Permission.MESSAGE_READ
+                                )
+                        )
+                        .addRolePermissionOverride(Long.parseLong(guildModel.getTicketSupportRoleId()),
+                                Arrays.asList(
+                                        Permission.VIEW_CHANNEL,
+                                        Permission.MESSAGE_HISTORY,
+                                        Permission.MESSAGE_READ
+                                ),
+                                Collections.emptyList()
+                        )
+                        .addRolePermissionOverride(Long.parseLong(guildModel.getTicketSupportPlusRoleId()),
+                                Arrays.asList(
+                                        Permission.VIEW_CHANNEL,
+                                        Permission.MESSAGE_HISTORY,
+                                        Permission.MESSAGE_READ
+                                ),
+                                Collections.emptyList()
+                        )
+                        .complete();
+
+                guildModel.setTicketLogTextChannelId(textChannel.getId());
+
+                log += shouldExists
+                        ? ":arrows_counterclockwise: `" + textChannel.getName() + "` wurde neu erstellt\n"
+                        : ":star: `" + textChannel.getName() + "` wurde initial erstellt\n";
+            } else {
+                log += ":white_check_mark: `" + textChannelById.getName() + "` existiert\n";
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            log += ":bug: `\uD83C\uDFAB-ticket-log` konnte nicht erstellt werden\n";
+        }
+
         guildRepository.save(guildModel);
 
         event.reply(log);

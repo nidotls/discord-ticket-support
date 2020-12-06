@@ -15,12 +15,18 @@ import com.google.inject.Inject;
 import io.nilsdev.discordticketsupport.bot.utils.MessageUtil;
 import io.nilsdev.discordticketsupport.common.models.GuildModel;
 import io.nilsdev.discordticketsupport.common.repositories.GuildRepository;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nonnull;
+import java.awt.*;
+import java.util.Date;
+import java.util.Objects;
 
 public class TicketDeleteListener extends ListenerAdapter {
 
@@ -47,7 +53,7 @@ public class TicketDeleteListener extends ListenerAdapter {
             return;
         }
 
-        if(event.getChannel().getParent() == null) {
+        if (event.getChannel().getParent() == null) {
             this.logger.debug("Ignored no parent: {}", event.getChannel().getParent());
             return;
         }
@@ -84,7 +90,38 @@ public class TicketDeleteListener extends ListenerAdapter {
             return;
         }
 
+        String topic = event.getChannel().getTopic();
+
         event.getChannel().delete()
                 .queue(aVoid -> this.logger.debug("Ticket deleted"), this.logger::throwing);
+
+        // Log
+
+        if (guildModel.getTicketLogTextChannelId() == null) return;
+
+        TextChannel logTextChannel = event.getGuild().getTextChannelById(guildModel.getTicketLogTextChannelId());
+
+        if (logTextChannel == null) return;
+
+        EmbedBuilder embedBuilder = new EmbedBuilder();
+
+        String userMention;
+
+        try {
+            User user = event.getJDA().retrieveUserById(Objects.requireNonNull(topic)).complete();
+            userMention = user == null ? "Undefined" : user.getAsMention();
+        } catch (Exception e) {
+            e.printStackTrace();
+            userMention = "Undefined";
+        }
+
+        embedBuilder.setTitle("Deleted Ticket `" + event.getChannel().getName() + "`");
+        embedBuilder.setColor(Color.RED);
+        embedBuilder.addField("Ticket", event.getChannel().getAsMention(), false);
+        embedBuilder.addField("Supporter", event.getUser().getAsMention(), true);
+        embedBuilder.addField("User", userMention, true);
+        embedBuilder.setTimestamp(new Date().toInstant());
+
+        logTextChannel.sendMessage(embedBuilder.build()).queue();
     }
 }
