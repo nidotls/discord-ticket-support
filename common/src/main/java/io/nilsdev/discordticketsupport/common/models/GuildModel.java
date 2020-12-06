@@ -31,19 +31,29 @@ public class GuildModel extends Model {
 
     private String guildId;
 
+    // Categories
+
+    private String ticketSupportCategoryId;
+
     private String ticketArchiveCategoryId;
+
+    // Channel
 
     private String ticketCreateTextChannelId;
 
     private String ticketCreateTextMessageId;
 
-    private String ticketSupportBanRoleId;
+    // Roles
 
-    private String ticketSupportCategoryId;
+    private String ticketSupportRoleId;
 
     private String ticketSupportPlusRoleId;
 
-    private String ticketSupportRoleId;
+    private String ticketSupportBanRoleId;
+
+    // Log
+
+    private String ticketLogTextChannelId;
 
     @PrePersist
     @SuppressWarnings("EmptyMethod")
