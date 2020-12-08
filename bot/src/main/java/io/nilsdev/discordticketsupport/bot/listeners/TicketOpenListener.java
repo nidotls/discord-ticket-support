@@ -113,6 +113,8 @@ public class TicketOpenListener extends ListenerAdapter {
             return;
         }
 
+        event.getChannel().sendMessage(event.getUser().getAsMention() + " hat das Ticket geöffnet!").complete();
+
         event.getChannel().getManager().setParent(supportCategory).complete();
 
         try {
@@ -122,8 +124,6 @@ public class TicketOpenListener extends ListenerAdapter {
                     .grant(Permission.MESSAGE_WRITE)
                     .complete();
         } catch (NullPointerException ignored) {}
-
-        event.getChannel().sendMessage(event.getUser().getAsMention() + " hat das Ticket geöffnet!").complete();
 
         // Log
 

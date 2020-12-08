@@ -113,6 +113,8 @@ public class TicketCloseListener extends ListenerAdapter {
             return;
         }
 
+        event.getChannel().sendMessage(event.getUser().getAsMention() + " hat das Ticket geschlossen!").complete();
+
         event.getChannel().getManager().setParent(archiveCategory).complete();
 
         try {
@@ -122,8 +124,6 @@ public class TicketCloseListener extends ListenerAdapter {
                     .deny(Permission.MESSAGE_WRITE)
                     .complete();
         } catch (NullPointerException ignored) { }
-
-        event.getChannel().sendMessage(event.getUser().getAsMention() + " hat das Ticket geschlossen!").complete();
 
         // Log
 
