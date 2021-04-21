@@ -35,7 +35,7 @@ public class PresenceUpdateTask implements Runnable {
         this.shardManager.getShards().forEach(jda -> {
             JDA.ShardInfo shardInfo = jda.getShardInfo();
 
-            jda.getPresence().setPresence(OnlineStatus.ONLINE, Activity.playing(activity + " | Shard " + (shardInfo.getShardId() + 1) + "/" + shardInfo.getShardTotal()));
+            jda.getPresence().setPresence(OnlineStatus.ONLINE, Activity.playing(activity + " | Shard " + shardInfo.getShardId() + "/" + shardInfo.getShardTotal()));
         });
     }
 }
