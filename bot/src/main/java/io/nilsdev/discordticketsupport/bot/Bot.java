@@ -23,13 +23,13 @@ import io.nilsdev.discordticketsupport.bot.listeners.TicketDeleteListener;
 import io.nilsdev.discordticketsupport.bot.listeners.TicketOpenListener;
 import io.nilsdev.discordticketsupport.bot.logging.AppLogger;
 import io.nilsdev.discordticketsupport.bot.tasks.PresenceUpdateTask;
+import io.nilsdev.discordticketsupport.bot.tasks.StatsTask;
 import io.nilsdev.discordticketsupport.bot.utils.VersionUtil;
 import io.nilsdev.discordticketsupport.common.config.Config;
 import io.nilsdev.discordticketsupport.common.modules.CommonModule;
+import io.nilsdev.discordticketsupport.common.repositories.StatsRepository;
 import io.sentry.Sentry;
 import lombok.Getter;
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.apache.logging.log4j.Level;
@@ -154,6 +154,7 @@ public class Bot {
         // ---
 
         this.scheduler.scheduleAtFixedRate(new PresenceUpdateTask(shardManager), 0, 2, TimeUnit.MINUTES);
+        this.scheduler.scheduleAtFixedRate(new StatsTask(shardManager, injector.getInstance(StatsRepository.class)), 0, 1, TimeUnit.HOURS);
     }
 
     public static void main(String[] args) throws LoginException, InterruptedException {

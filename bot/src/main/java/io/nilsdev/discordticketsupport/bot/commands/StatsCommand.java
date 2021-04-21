@@ -16,8 +16,10 @@ import com.github.kaktushose.jda.commands.annotations.CommandController;
 import com.github.kaktushose.jda.commands.entities.CommandEvent;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.sharding.ShardManager;
 
 import javax.annotation.Nullable;
+import java.util.List;
 
 @CommandController
 public class StatsCommand {
@@ -29,12 +31,16 @@ public class StatsCommand {
             return;
         }
 
-        Integer memberCount = event.getJDA().getGuilds()
+        List<Guild> guilds = event.getJDA().getShardManager() == null
+                ? event.getJDA().getGuilds()
+                : event.getJDA().getShardManager().getGuilds();
+
+        Integer memberCount = guilds
                 .stream()
                 .map(Guild::getMemberCount)
                 .reduce(0, Integer::sum);
 
-        int guildCount = event.getJDA().getGuilds().size();
+        int guildCount = guilds.size();
 
         final EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setTitle("Statistiken")
