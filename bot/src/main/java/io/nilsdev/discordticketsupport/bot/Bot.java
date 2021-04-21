@@ -154,7 +154,7 @@ public class Bot {
         // ---
 
         this.scheduler.scheduleAtFixedRate(new PresenceUpdateTask(shardManager), 0, 2, TimeUnit.MINUTES);
-        this.scheduler.scheduleAtFixedRate(new StatsTask(shardManager, injector.getInstance(StatsRepository.class)), 0, 1, TimeUnit.HOURS);
+        this.scheduler.scheduleAtFixedRate(new StatsTask(shardManager, injector.getInstance(StatsRepository.class)), 5, 60, TimeUnit.MINUTES);
     }
 
     public static void main(String[] args) throws LoginException, InterruptedException {
