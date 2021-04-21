@@ -115,7 +115,7 @@ public class TicketCreateListener extends ListenerAdapter {
 
         TextChannel ticketTextChannel = event.getGuild().createTextChannel("\uD83C\uDFAB-" + ticketId)
                 .setParent(category)
-                .setPosition(0)
+                //.setPosition(0)
                 .setTopic(event.getUser().getId())
                 .addRolePermissionOverride(event.getGuild().getPublicRole().getIdLong(),
                         Collections.emptyList(),

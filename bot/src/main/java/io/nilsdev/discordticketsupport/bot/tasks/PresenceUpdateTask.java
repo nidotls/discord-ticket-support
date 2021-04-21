@@ -16,20 +16,28 @@ import io.nilsdev.discordticketsupport.bot.utils.VersionUtil;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.sharding.ShardManager;
 
 public class PresenceUpdateTask implements Runnable {
 
-    private final JDA jda;
+    private final ShardManager shardManager;
 
     @Inject
-    public PresenceUpdateTask(JDA jda) {
-        this.jda = jda;
+    public PresenceUpdateTask(ShardManager shardManager) {
+        this.shardManager = shardManager;
     }
 
     @Override
     public void run() {
         String activity = ".ticket help | Version " + VersionUtil.getVersion();
 
-        this.jda.getPresence().setPresence(OnlineStatus.ONLINE, Activity.playing(activity));
+        System.out.println("activity: " + activity);
+
+        this.shardManager.getShards().forEach(jda -> {
+            JDA.ShardInfo shardInfo = jda.getShardInfo();
+            System.out.println("Shard " + shardInfo.getShardString());
+
+            jda.getPresence().setPresence(OnlineStatus.ONLINE, Activity.playing(activity + " | Shard " + (shardInfo.getShardId() + 1) + "/" + shardInfo.getShardTotal()));
+        });
     }
 }
