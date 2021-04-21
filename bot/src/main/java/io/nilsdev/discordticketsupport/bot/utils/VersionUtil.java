@@ -28,8 +28,7 @@ public class VersionUtil {
             properties.load(inputStream);
 
             version = properties.getProperty("git.build.version");
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Throwable ignored) {
         }
         return version;
     }

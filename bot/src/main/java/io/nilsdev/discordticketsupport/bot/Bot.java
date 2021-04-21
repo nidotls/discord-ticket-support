@@ -23,13 +23,15 @@ import io.nilsdev.discordticketsupport.bot.listeners.TicketDeleteListener;
 import io.nilsdev.discordticketsupport.bot.listeners.TicketOpenListener;
 import io.nilsdev.discordticketsupport.bot.logging.AppLogger;
 import io.nilsdev.discordticketsupport.bot.tasks.PresenceUpdateTask;
+import io.nilsdev.discordticketsupport.bot.tasks.StatsTask;
 import io.nilsdev.discordticketsupport.bot.utils.VersionUtil;
 import io.nilsdev.discordticketsupport.common.config.Config;
 import io.nilsdev.discordticketsupport.common.modules.CommonModule;
+import io.nilsdev.discordticketsupport.common.repositories.StatsRepository;
 import io.sentry.Sentry;
 import lombok.Getter;
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
+import net.dv8tion.jda.api.sharding.ShardManager;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -99,10 +101,10 @@ public class Bot {
                 options.setRelease(VersionUtil.getVersion());
             });
         } else {
-            Sentry.init(options -> {
-                options.setDsn("");
-                options.setRelease(VersionUtil.getVersion());
-            });
+            //Sentry.init(options -> {
+            //    options.setDsn("");
+            //    options.setRelease(VersionUtil.getVersion());
+            //});
         }
 
 
@@ -120,18 +122,18 @@ public class Bot {
 
         // ---
 
-        JDA jda = JDABuilder.createDefault(properties.getProperty("discord.token"))
+        ShardManager shardManager = DefaultShardManagerBuilder.createDefault(properties.getProperty("discord.token"))
+                .setShardsTotal(3)
+                .setShards(0, 2)
                 .addEventListeners(injector.getInstance(TicketCloseListener.class))
                 .addEventListeners(injector.getInstance(TicketCreateListener.class))
                 .addEventListeners(injector.getInstance(TicketDeleteListener.class))
                 .addEventListeners(injector.getInstance(TicketOpenListener.class))
                 .build();
 
-        jda.awaitReady();
-
         // ---
 
-        JDACommands jdaCommands = new JDACommandsBuilder(jda)
+        JDACommands jdaCommands = new JDACommandsBuilder(shardManager)
                 .setEmbedFactory(new EmbedFactory())
                 .setHelpMessageSender(new HelpMessageSender())
                 .build();
@@ -145,12 +147,14 @@ public class Bot {
 
         // ---
 
-        this.logger.info("Shard Status {}", jda.getShardInfo().getShardString());
-        this.logger.info("Logged in as {}", jda.getSelfUser().getAsTag());
+        this.logger.info("Shard Status {}", shardManager.getStatuses().values());
+        this.logger.info("Shard Info {}", shardManager.getShardById(0).getShardInfo().getShardString());
+        this.logger.info("Logged in as {}", shardManager.getShardById(0).getSelfUser().getAsTag());
 
         // ---
 
-        this.scheduler.scheduleAtFixedRate(new PresenceUpdateTask(jda), 0, 2, TimeUnit.MINUTES);
+        this.scheduler.scheduleAtFixedRate(new PresenceUpdateTask(shardManager), 0, 2, TimeUnit.MINUTES);
+        this.scheduler.scheduleAtFixedRate(new StatsTask(shardManager, injector.getInstance(StatsRepository.class)), 0, 1, TimeUnit.HOURS);
     }
 
     public static void main(String[] args) throws LoginException, InterruptedException {
