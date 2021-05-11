@@ -17,10 +17,7 @@ import io.nilsdev.discordticketsupport.common.models.GuildModel;
 import io.nilsdev.discordticketsupport.common.repositories.GuildRepository;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Category;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.apache.logging.log4j.LogManager;
@@ -29,6 +26,8 @@ import org.apache.logging.log4j.Logger;
 import javax.annotation.Nonnull;
 import java.awt.*;
 import java.util.*;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class TicketCreateListener extends ListenerAdapter {
 
@@ -75,6 +74,42 @@ public class TicketCreateListener extends ListenerAdapter {
                 this.logger.throwing(throwable);
                 return;
             }
+
+            Message message = event.retrieveMessage().complete();
+
+            List<MessageReaction> reactions = message.getReactions();
+
+            // ---
+
+            List<MessageReaction> otherReactions = reactions.stream()
+                    .filter(messageReaction -> !messageReaction.getReactionEmote().getName().equals("\uD83D\uDCE9"))
+                    .collect(Collectors.toList());
+
+            if (!otherReactions.isEmpty()) {
+                this.logger.warn("[" + event.getGuild().toString() + "] Found other reactions: " + otherReactions.size());
+
+                for (MessageReaction reaction : otherReactions) {
+                    this.logger.warn("[" + event.getGuild().toString() + "] Remove reaction " + reaction.toString() + "(" + reaction.getReactionEmote().toString() + "|" + reaction.getReactionEmote().getName() + ")");
+                    reaction.clearReactions().queue();
+                }
+            }
+
+            // ---
+
+            Optional<MessageReaction> ticketOpenReaction = reactions.stream()
+                    .filter(messageReaction -> messageReaction.getReactionEmote().getName().equals("\uD83D\uDCE9"))
+                    .findFirst();
+
+            int count = ticketOpenReaction.map(MessageReaction::getCount).orElse(0);
+
+            if (count < 1) {
+                this.logger.warn("[" + event.getGuild().toString() + "] Reaction is not set: " + reactions.size());
+
+                this.logger.warn("[" + event.getGuild().toString() + "] Add ticket open reaction, because it was missing");
+                message.addReaction("\uD83D\uDCE9").queue();
+            }
+
+            // ---
 
             this.logger.debug("Reaction removed successfully");
         });
