@@ -72,11 +72,8 @@ public class TicketCreateListener extends ListenerAdapter {
 
         // Remove Reaction
         try {
-            int count = event.getReaction().hasCount()
-                    ? event.getReaction().getCount()
-                    : 0;
             List<User> users = event.getReaction().retrieveUsers().complete();
-            this.logger.info("[" + event.getGuild().toString() + "] Remove reaction from " + event.getUser().toString() + " {count: " + count + ", users: \"" + users.stream().map(Object::toString).collect(Collectors.joining(", ")) + "\"}");
+            this.logger.info("[" + event.getGuild().toString() + "] Remove reaction from " + event.getUser().toString() + " {count: " + users.size() + ", users: \"" + users.stream().map(Object::toString).collect(Collectors.joining(", ")) + "\"}");
         } catch (Throwable t) {
             this.logger.log(Level.ERROR, "[" + event.getGuild().toString() + "] Could not generate debug", t);
         }
@@ -87,49 +84,38 @@ public class TicketCreateListener extends ListenerAdapter {
                 return;
             }
 
-            Message message = event.retrieveMessage().complete();
+            event.retrieveMessage().queue(message -> {
+                List<MessageReaction> reactions = message.getReactions();
 
-            List<MessageReaction> reactions = message.getReactions();
+                // ---
 
-            // ---
+                List<MessageReaction> otherReactions = reactions.stream()
+                        .filter(messageReaction -> !messageReaction.getReactionEmote().getName().equals("\uD83D\uDCE9"))
+                        .collect(Collectors.toList());
 
-            List<MessageReaction> otherReactions = reactions.stream()
-                    .filter(messageReaction -> !messageReaction.getReactionEmote().getName().equals("\uD83D\uDCE9"))
-                    .collect(Collectors.toList());
+                if (!otherReactions.isEmpty()) {
+                    this.logger.warn("[" + event.getGuild().toString() + "] Found other reactions: " + otherReactions.size());
 
-            if (!otherReactions.isEmpty()) {
-                this.logger.warn("[" + event.getGuild().toString() + "] Found other reactions: " + otherReactions.size());
-
-                for (MessageReaction reaction : otherReactions) {
-                    this.logger.warn("[" + event.getGuild().toString() + "] Remove reaction " + reaction.toString() + "(" + reaction.getReactionEmote().toString() + "|" + reaction.getReactionEmote().getName() + ")");
-                    reaction.clearReactions().queue();
+                    for (MessageReaction reaction : otherReactions) {
+                        this.logger.warn("[" + event.getGuild().toString() + "] Remove reaction " + reaction.toString() + "(" + reaction.getReactionEmote().toString() + "|" + reaction.getReactionEmote().getName() + ")");
+                        reaction.clearReactions().queue();
+                    }
                 }
-            }
 
-            // ---
+                // ---
 
-            Optional<MessageReaction> ticketOpenReaction = reactions.stream()
-                    .filter(messageReaction -> messageReaction.getReactionEmote().getName().equals("\uD83D\uDCE9"))
-                    .findFirst();
+                message.retrieveReactionUsers("\uD83D\uDCE9").queue(users -> {
+                    if (users.size() != 1) {
+                        this.logger.info("[" + event.getGuild().toString() + "] Reaction is not set: " + users.size());
+                        this.logger.info("[" + event.getGuild().toString() + "] Add ticket open reaction, because it was missing");
+                        message.addReaction("\uD83D\uDCE9").queue();
+                    }
 
-            int count = ticketOpenReaction.map(MessageReaction::getCount).orElse(0);
+                    this.logger.info("[" + event.getGuild().toString() + "] Removed reaction from " + event.getUser().toString() + " {count: " + users.size() + ", users: \"" + users.stream().map(Object::toString).collect(Collectors.joining(", ")) + "\"}");
+                });
 
-            if (count < 1) {
-                this.logger.warn("[" + event.getGuild().toString() + "] Reaction is not set: " + reactions.size());
-
-                this.logger.warn("[" + event.getGuild().toString() + "] Add ticket open reaction, because it was missing");
-                message.addReaction("\uD83D\uDCE9").queue();
-            }
-
-            // ---
-
-            if(ticketOpenReaction.isPresent()) {
-                this.logger.info("[" + event.getGuild().toString() + "] Removed reaction from " + event.getUser().toString() + " {count: " + count + ", users: \"" + ticketOpenReaction.get().retrieveUsers().complete().stream().map(Object::toString).collect(Collectors.joining(", ")) + "\"}");
-            } else {
-                this.logger.info("[" + event.getGuild().toString() + "] Removed reaction from " + event.getUser().toString() + " {count: " + count + ", users: \"\"}");
-            }
-
-            this.logger.debug("Reaction removed successfully");
+                this.logger.debug("Reaction removed successfully");
+            });
         });
 
         // Filter Bots
