@@ -20,6 +20,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -69,9 +70,11 @@ public class TicketCreateListener extends ListenerAdapter {
         }
 
         // Remove Reaction
+        this.logger.info("[" + event.getGuild().toString() + "] Remove reaction from " + event.getUser().toString() + " {count: " + event.getReaction().getCount() + ", users: \"" + event.getReaction().retrieveUsers().complete().stream().map(Object::toString).collect(Collectors.joining(", ")) + "\"}");
+
         event.getReaction().removeReaction(event.getUser()).submit().whenComplete((aVoid, throwable) -> {
             if (throwable != null) {
-                this.logger.throwing(throwable);
+                this.logger.log(Level.ERROR, event.getGuild().toString(), throwable);
                 return;
             }
 
@@ -110,6 +113,12 @@ public class TicketCreateListener extends ListenerAdapter {
             }
 
             // ---
+
+            if(ticketOpenReaction.isPresent()) {
+                this.logger.info("[" + event.getGuild().toString() + "] Removed reaction from " + event.getUser().toString() + " {count: " + count + ", users: \"" + ticketOpenReaction.get().retrieveUsers().complete().stream().map(Object::toString).collect(Collectors.joining(", ")) + "\"}");
+            } else {
+                this.logger.info("[" + event.getGuild().toString() + "] Removed reaction from " + event.getUser().toString() + " {count: " + count + ", users: \"\"}");
+            }
 
             this.logger.debug("Reaction removed successfully");
         });
