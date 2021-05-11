@@ -20,6 +20,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.requests.restaction.pagination.ReactionPaginationAction;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -70,7 +71,15 @@ public class TicketCreateListener extends ListenerAdapter {
         }
 
         // Remove Reaction
-        this.logger.info("[" + event.getGuild().toString() + "] Remove reaction from " + event.getUser().toString() + " {count: " + event.getReaction().getCount() + ", users: \"" + event.getReaction().retrieveUsers().complete().stream().map(Object::toString).collect(Collectors.joining(", ")) + "\"}");
+        try {
+            int count = event.getReaction().hasCount()
+                    ? event.getReaction().getCount()
+                    : 0;
+            List<User> users = event.getReaction().retrieveUsers().complete();
+            this.logger.info("[" + event.getGuild().toString() + "] Remove reaction from " + event.getUser().toString() + " {count: " + count + ", users: \"" + users.stream().map(Object::toString).collect(Collectors.joining(", ")) + "\"}");
+        } catch (Throwable t) {
+            this.logger.log(Level.ERROR, "[" + event.getGuild().toString() + "] Could not generate debug", t);
+        }
 
         event.getReaction().removeReaction(event.getUser()).submit().whenComplete((aVoid, throwable) -> {
             if (throwable != null) {
