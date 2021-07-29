@@ -3,7 +3,7 @@ package io.nilsdev.discordticketsupport.bot.commands;
 import com.github.kaktushose.jda.commands.annotations.Command;
 import com.github.kaktushose.jda.commands.annotations.CommandController;
 import com.github.kaktushose.jda.commands.entities.CommandEvent;
-import com.google.inject.Inject;
+import io.nilsdev.discordticketsupport.bot.Bot;
 import io.nilsdev.discordticketsupport.bot.utils.MessageUtil;
 import io.nilsdev.discordticketsupport.common.models.GuildModel;
 import io.nilsdev.discordticketsupport.common.repositories.GuildRepository;
@@ -16,13 +16,12 @@ import org.apache.logging.log4j.Logger;
 @CommandController
 public class ClearArchiveCommand {
 
-    private final Logger logger = LogManager.getLogger("TicketCloseListener");
+    private final Logger logger = LogManager.getLogger("ClearArchiveCommand");
 
     private final GuildRepository guildRepository;
 
-    @Inject
-    public ClearArchiveCommand(GuildRepository guildRepository) {
-        this.guildRepository = guildRepository;
+    public ClearArchiveCommand() {
+        this.guildRepository = Bot.getInjector().getInstance(GuildRepository.class);;
     }
 
     @Command("cleararchive")
