@@ -41,8 +41,10 @@ public class HelpMessageSender extends com.github.kaktushose.jda.commands.api.He
                             + "**.ticket invite**: Zeigt dir den Einladungs Link für den Bot an.\n"
                             + "**.ticket install**: Richtet den Bot auf deinem Discord-Server ein.\n"
                             + "**.ticket uninstall**: Entfernt den Bot von deinem Discord-Server.\n"
-                            + "**.ticket ping**: Überprüft den Ping des Bot\"s zum Discord-Server.\n")
-                    .setFooter("Made with ❤️ by nils#2488 (https://ni.ls)", "https://img.nilsdev.io/58bc4/5da0911b8077c.jpg")
+                            + "**.ticket ping**: Überprüft den Ping des Bot\"s zum Discord-Server.\n"
+                            + "**.ticket cleararchive**: Löscht das Archiv.\n"
+                    )
+                    .setFooter("Made with ❤️ by nils#2488 (https://ni.ls)")
                     .build();
     }
 }

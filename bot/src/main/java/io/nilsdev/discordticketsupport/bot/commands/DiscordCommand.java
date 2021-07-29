@@ -26,7 +26,7 @@ public class DiscordCommand {
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setTitle("Support Discord", "https://dc.ni.ls")
                 .setColor(Color.RED)
-                .setFooter("Made with ❤️ by nils#2488 (https://ni.ls)", "https://img.nilsdev.io/58bc4/5da0911b8077c.jpg");
+                .setFooter("Made with ❤️ by nils#2488 (https://ni.ls)");
 
         event.reply(embedBuilder);
     }
