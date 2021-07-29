@@ -15,8 +15,8 @@
     <description/>
 
     <properties>
-        <log4j.version>2.13.2</log4j.version>
-        <slf4j.version>1.7.30</slf4j.version>
+        <log4j.version>2.14.1</log4j.version>
+        <slf4j.version>1.7.32</slf4j.version>
     </properties>
 
     <repositories>
@@ -62,7 +62,7 @@
         <dependency>
             <groupId>io.sentry</groupId>
             <artifactId>sentry-log4j2</artifactId>
-            <version>3.1.1</version>
+            <version>5.0.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
@@ -114,7 +114,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.2.1</version>
+                <version>3.2.4</version>
                 <configuration>
                     <relocations/>
                 </configuration>
