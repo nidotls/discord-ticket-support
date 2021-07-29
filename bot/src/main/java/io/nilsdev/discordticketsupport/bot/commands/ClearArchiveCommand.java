@@ -4,6 +4,7 @@ import com.github.kaktushose.jda.commands.annotations.Command;
 import com.github.kaktushose.jda.commands.annotations.CommandController;
 import com.github.kaktushose.jda.commands.entities.CommandEvent;
 import com.google.inject.Inject;
+import io.nilsdev.discordticketsupport.bot.utils.MessageUtil;
 import io.nilsdev.discordticketsupport.common.models.GuildModel;
 import io.nilsdev.discordticketsupport.common.repositories.GuildRepository;
 import net.dv8tion.jda.api.entities.Category;
@@ -48,6 +49,13 @@ public class ClearArchiveCommand {
         if(categoryById == null) {
             event.reply("Ticket Archiv existiert nicht!");
             this.logger.debug("Ignored guild ticketArchiveCategory null: {}", guildModel);
+            return;
+        }
+
+        if (event.getMember().getRoles().stream().noneMatch(role -> role.getId().equals(guildModel.getTicketSupportPlusRoleId()))) {
+            this.logger.debug("Ignored member has no support+ role: {}", event.getMember().getUser().getAsTag());
+
+            MessageUtil.disposableMessage(this.logger, event.getChannel(), event.getMember().getUser().getAsMention() + ", du darfst das Archiv nicht löschen!");
             return;
         }
 
