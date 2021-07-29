@@ -121,6 +121,7 @@ public class TicketOpenListener extends ListenerAdapter {
             Member memberById = event.getGuild().retrieveMemberById(Objects.requireNonNull(event.getChannel().getTopic())).complete();
 
             event.getChannel().upsertPermissionOverride(Objects.requireNonNull(memberById))
+                    .grant(Permission.VIEW_CHANNEL)
                     .grant(Permission.MESSAGE_WRITE)
                     .complete();
         } catch (NullPointerException ignored) {}

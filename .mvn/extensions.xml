@@ -1,0 +1,8 @@
+<extensions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/EXTENSIONS/1.0.0"
+            xsi:schemaLocation="http://maven.apache.org/EXTENSIONS/1.0.0 http://maven.apache.org/xsd/core-extensions-1.0.0.xsd">
+    <extension>
+        <groupId>gg.nils</groupId>
+        <artifactId>semantic-release-maven-plugin</artifactId>
+        <version>1.1.9</version>
+    </extension>
+</extensions>

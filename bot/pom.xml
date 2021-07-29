@@ -5,7 +5,7 @@
     <parent>
         <artifactId>parent</artifactId>
         <groupId>io.nilsdev.discordticketsupport</groupId>
-        <version>1.2.6</version>
+        <version>0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -40,7 +40,7 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>4.2.1_253</version>
+            <version>4.3.0_299</version>
             <exclusions>
                 <exclusion>
                     <groupId>club.minnced</groupId>
@@ -51,7 +51,7 @@
         <dependency>
             <groupId>io.nilsdev.discordticketsupport</groupId>
             <artifactId>common</artifactId>
-            <version>1.2.6</version>
+            <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
