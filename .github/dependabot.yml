@@ -1,0 +1,26 @@
+version: 2
+updates:
+  - package-ecosystem: "maven"
+    directory: "/"
+    target-branch: "develop"
+    open-pull-requests-limit: 20
+    schedule:
+      interval: "daily"
+      time: "09:00"
+      timezone: "Europe/Berlin"
+    assignees:
+      - "thenilsdev"
+    reviewers:
+      - "thenilsdev"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    target-branch: "develop"
+    open-pull-requests-limit: 20
+    schedule:
+      interval: "daily"
+      time: "09:00"
+      timezone: "Europe/Berlin"
+    assignees:
+      - "thenilsdev"
+    reviewers:
+      - "thenilsdev"
