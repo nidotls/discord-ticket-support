@@ -4,7 +4,7 @@
 
 # DiscordTicketBot
 
-[![Discord](https://img.shields.io/discord/617339081168388110?color=green&label=discord&logo=discord&logoColor=white&style=for-the-badge)](https://discord.gg/mEnDydK)
+[![Discord](https://img.shields.io/discord/617339081168388110?color=green&label=discord&logo=discord&logoColor=white&style=for-the-badge)](https://dc.ni.ls)
 [![GitHub license](https://img.shields.io/github/license/thenilsdev/discord-ticket-support?style=for-the-badge)](https://github.com/thenilsdev/discord-ticket-support/blob/main/LICENSE)
 </div>
 
