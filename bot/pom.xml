@@ -40,7 +40,7 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>4.4.0_351</version>
+            <version>4.4.0_352</version>
             <exclusions>
                 <exclusion>
                     <groupId>club.minnced</groupId>
@@ -62,7 +62,7 @@
         <dependency>
             <groupId>io.sentry</groupId>
             <artifactId>sentry-log4j2</artifactId>
-            <version>5.4.3</version>
+            <version>5.5.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
