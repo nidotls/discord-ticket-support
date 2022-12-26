@@ -57,7 +57,7 @@
         <dependency>
             <groupId>com.github.kaktushose</groupId>
             <artifactId>jda-commands</artifactId>
-            <version>v.1.0.1</version>
+            <version>3.0.0</version>
         </dependency>
         <dependency>
             <groupId>io.sentry</groupId>
