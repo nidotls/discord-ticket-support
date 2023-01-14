@@ -120,7 +120,7 @@ public class Bot {
         this.scheduler.scheduleAtFixedRate(new StatsTask(shardManager, injector.getInstance(StatsRepository.class)), 5, 60, TimeUnit.MINUTES);
     }
 
-    public static void main(String[] args) throws LoginException, InterruptedException {
+    public static void main(String[] args) {
         new Bot(args);
     }
 }
