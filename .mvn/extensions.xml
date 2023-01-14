@@ -3,6 +3,6 @@
     <extension>
         <groupId>gg.nils</groupId>
         <artifactId>semantic-release-maven-plugin</artifactId>
-        <version>1.1.9</version>
+        <version>1.1.10</version>
     </extension>
 </extensions>
