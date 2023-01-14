@@ -30,7 +30,7 @@ public class PresenceUpdateTask implements Runnable {
 
     @Override
     public void run() {
-        String activity = ".ticket help | Version " + VersionUtil.getVersion();
+        String activity = "/install | Version " + VersionUtil.getVersion();
 
         this.shardManager.getShards().forEach(jda -> {
             JDA.ShardInfo shardInfo = jda.getShardInfo();
