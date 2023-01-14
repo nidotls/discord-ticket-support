@@ -17,16 +17,17 @@ import io.nilsdev.discordticketsupport.common.models.GuildModel;
 import io.nilsdev.discordticketsupport.common.repositories.GuildRepository;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Category;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
+import net.dv8tion.jda.api.entities.channel.concrete.Category;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
+import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.awt.*;
 import java.util.Date;
 import java.util.Objects;
@@ -43,7 +44,9 @@ public class TicketOpenListener extends ListenerAdapter {
     }
 
     @Override
-    public void onGuildMessageReactionAdd(@Nonnull GuildMessageReactionAddEvent event) {
+    public void onMessageReactionAdd(@NotNull MessageReactionAddEvent event) {
+        TextChannel channel = event.getGuildChannel().asTextChannel();
+
         // Filter Myself
         if (event.getJDA().getSelfUser().equals(event.getMember().getUser())) {
             this.logger.debug("Ignored self: {}", event.getMember().getUser().getAsTag());
@@ -51,13 +54,14 @@ public class TicketOpenListener extends ListenerAdapter {
         }
 
         // Check reaction emote
-        if (!event.getReactionEmote().getName().equals("\uD83D\uDD13")) {
-            this.logger.debug("Ignored reaction: {}", event.getReactionEmote().getName());
+        UnicodeEmoji reaction = event.getEmoji().asUnicode();
+        if (!reaction.getName().equals("\uD83D\uDD13")) {
+            this.logger.debug("Ignored reaction: {}", reaction.getName());
             return;
         }
 
-        if (event.getChannel().getParent() == null) {
-            this.logger.debug("Ignored no parent: {}", event.getChannel().getParent());
+        if (channel.getParentCategory() == null) {
+            this.logger.debug("Ignored no parent: {}", channel);
             return;
         }
 
@@ -69,9 +73,9 @@ public class TicketOpenListener extends ListenerAdapter {
             return;
         }
         // Check if guild's ticket create channel
-        if (!event.getChannel().getParent().getId().equals(guildModel.getTicketSupportCategoryId())
-                && !event.getChannel().getParent().getId().equals(guildModel.getTicketArchiveCategoryId())) {
-            this.logger.debug("Ignored parent id does not match: {} != {} && {} != {}", event.getChannel().getParent().getId(), guildModel.getTicketSupportCategoryId(), event.getChannel().getParent().getId(), guildModel.getTicketArchiveCategoryId());
+        if (!channel.getParentCategoryId().equals(guildModel.getTicketSupportCategoryId())
+                && !channel.getParentCategoryId().equals(guildModel.getTicketArchiveCategoryId())) {
+            this.logger.debug("Ignored parent id does not match: {} != {} && {} != {}", channel.getParentCategoryId(), guildModel.getTicketSupportCategoryId(), channel.getParentCategoryId(), guildModel.getTicketArchiveCategoryId());
             return;
         }
 
@@ -91,8 +95,8 @@ public class TicketOpenListener extends ListenerAdapter {
             return;
         }
 
-        if (event.getChannel().getParent().getId().equals(guildModel.getTicketSupportCategoryId())) {
-            this.logger.debug("Ignored because already opened: {}", event.getChannel().getId());
+        if (channel.getParentCategoryId().equals(guildModel.getTicketSupportCategoryId())) {
+            this.logger.debug("Ignored because already opened: {}", channel.getId());
             return;
         }
 
@@ -100,7 +104,7 @@ public class TicketOpenListener extends ListenerAdapter {
         if (event.getMember().getRoles().stream().noneMatch(role -> role.getId().equals(guildModel.getTicketSupportRoleId()) || role.getId().equals(guildModel.getTicketSupportPlusRoleId()))) {
             this.logger.debug("Ignored member has no support role: {}", event.getMember().getUser().getAsTag());
 
-            MessageUtil.disposableMessage(this.logger, event.getChannel(), event.getMember().getUser().getAsMention() + ", du darfst keine Tickets öffnen!");
+            MessageUtil.disposableMessage(this.logger, channel, event.getMember().getUser().getAsMention() + ", du darfst keine Tickets öffnen!");
             return;
         }
 
@@ -109,20 +113,20 @@ public class TicketOpenListener extends ListenerAdapter {
         if (supportCategory == null || supportCategory.getChannels().size() >= 50) {
             this.logger.debug("Ignored too many tickets: {}", supportCategory);
 
-            MessageUtil.disposableMessage(this.logger, event.getChannel(), event.getMember().getUser().getAsMention() + ", Ticket konnte nicht geöffnet werden, Kategorie voll!");
+            MessageUtil.disposableMessage(this.logger, channel, event.getMember().getUser().getAsMention() + ", Ticket konnte nicht geöffnet werden, Kategorie voll!");
             return;
         }
 
-        event.getChannel().sendMessage(event.getUser().getAsMention() + " hat das Ticket geöffnet!").complete();
+        channel.sendMessage(event.getUser().getAsMention() + " hat das Ticket geöffnet!").complete();
 
-        event.getChannel().getManager().setParent(supportCategory).complete();
+        channel.getManager().setParent(supportCategory).complete();
 
         try {
-            Member memberById = event.getGuild().retrieveMemberById(Objects.requireNonNull(event.getChannel().getTopic())).complete();
+            Member memberById = event.getGuild().retrieveMemberById(Objects.requireNonNull(channel.getTopic())).complete();
 
-            event.getChannel().upsertPermissionOverride(Objects.requireNonNull(memberById))
+            channel.upsertPermissionOverride(Objects.requireNonNull(memberById))
                     .grant(Permission.VIEW_CHANNEL)
-                    .grant(Permission.MESSAGE_WRITE)
+                    .grant(Permission.MESSAGE_SEND)
                     .complete();
         } catch (NullPointerException ignored) {}
 
@@ -139,20 +143,20 @@ public class TicketOpenListener extends ListenerAdapter {
         String userMention;
 
         try {
-            User user = event.getJDA().retrieveUserById(Objects.requireNonNull(event.getChannel().getTopic())).complete();
+            User user = event.getJDA().retrieveUserById(Objects.requireNonNull(channel.getTopic())).complete();
             userMention = user == null ? "Undefined" : user.getAsMention();
         } catch (Exception e) {
             e.printStackTrace();
             userMention = "Undefined";
         }
 
-        embedBuilder.setTitle("Reopened Ticket `" + event.getChannel().getName() + "`");
+        embedBuilder.setTitle("Reopened Ticket `" + channel.getName() + "`");
         embedBuilder.setColor(Color.ORANGE);
-        embedBuilder.addField("Ticket", event.getChannel().getAsMention(), false);
+        embedBuilder.addField("Ticket", channel.getAsMention(), false);
         embedBuilder.addField("Supporter", event.getUser().getAsMention(), true);
         embedBuilder.addField("User", userMention , true);
         embedBuilder.setTimestamp(new Date().toInstant());
 
-        logTextChannel.sendMessage(embedBuilder.build()).queue();
+        logTextChannel.sendMessageEmbeds(embedBuilder.build()).queue();
     }
 }

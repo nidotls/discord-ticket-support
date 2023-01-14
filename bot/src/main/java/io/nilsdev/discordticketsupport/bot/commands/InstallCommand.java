@@ -1,54 +1,58 @@
-/*
- * Copyright (c) 2020 thenilsdev
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- */
-
 package io.nilsdev.discordticketsupport.bot.commands;
 
-import com.github.kaktushose.jda.commands.annotations.Command;
-import com.github.kaktushose.jda.commands.annotations.CommandController;
-import com.github.kaktushose.jda.commands.entities.CommandEvent;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import io.nilsdev.discordticketsupport.bot.Bot;
+import io.nilsdev.discordticketsupport.bot.command.TicketCommand;
 import io.nilsdev.discordticketsupport.common.models.GuildModel;
 import io.nilsdev.discordticketsupport.common.repositories.GuildRepository;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.channel.concrete.Category;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Objects;
 
-@CommandController
-public class InstallCommand {
+@Singleton
+public class InstallCommand extends TicketCommand {
 
-    @Command("install")
-    public void onCommand(CommandEvent event) {
+    private final GuildRepository guildRepository;
+
+    @Inject
+    public InstallCommand(GuildRepository guildRepository) {
+        super("install", "");
+
+        this.guildRepository = guildRepository;
+    }
+
+    @Override
+    public void process(SlashCommandInteractionEvent event) {
+        event.deferReply(true).queue();
+
         if (!event.getMember().hasPermission(Permission.ADMINISTRATOR)) {
-            event.reply(event.getAuthor().getAsMention() + ", der Befehl install erfordert, dass du die Berechtigung \"Administrator\" hast.");
+            event.getHook().sendMessage(event.getMember().getAsMention() + ", der Befehl install erfordert, dass du die Berechtigung \"Administrator\" hast.").queue();
             return;
         }
 
         if (!event.getGuild().getMember(event.getJDA().getSelfUser()).hasPermission(Permission.ADMINISTRATOR)) {
-            event.reply(event.getAuthor().getAsMention() + ", ich brauche die Berechtigung \"Administrator\", damit der Befehl \\`install\\` funktioniert.`");
+            event.getHook().sendMessage(event.getMember().getAsMention() + ", ich brauche die Berechtigung \"Administrator\", damit der Befehl \\`install\\` funktioniert.`").queue();
             return;
         }
 
-        GuildRepository guildRepository = Bot.getInjector().getInstance(GuildRepository.class);
-
-        GuildModel guildModel = guildRepository.findByGuildId(event.getGuild().getId());
+        GuildModel guildModel = this.guildRepository.findByGuildId(event.getGuild().getId());
 
         if (guildModel == null) {
             guildModel = GuildModel.builder()
                     .guildId(event.getGuild().getId())
                     .build();
-            guildRepository.save(guildModel);
+            this.guildRepository.save(guildModel);
         }
 
         // ---
@@ -147,8 +151,8 @@ public class InstallCommand {
                 Category category = event.getGuild().createCategory("\uD83C\uDFAB Support Tickets")
                         .addRolePermissionOverride(event.getGuild().getPublicRole().getIdLong(),
                                 Arrays.asList(
-                                        Permission.MESSAGE_READ,
-                                        Permission.MESSAGE_WRITE,
+                                        Permission.VIEW_CHANNEL,
+                                        Permission.MESSAGE_SEND,
                                         Permission.MESSAGE_HISTORY
                                 ),
                                 Collections.singletonList(
@@ -182,11 +186,11 @@ public class InstallCommand {
                 Category category = event.getGuild().createCategory("\uD83C\uDFAB Archiv")
                         .addRolePermissionOverride(event.getGuild().getPublicRole().getIdLong(),
                                 Arrays.asList(
-                                        Permission.MESSAGE_READ,
+                                        Permission.VIEW_CHANNEL,
                                         Permission.MESSAGE_HISTORY
                                 ),
                                 Arrays.asList(
-                                        Permission.MESSAGE_WRITE,
+                                        Permission.MESSAGE_SEND,
                                         Permission.MESSAGE_ADD_REACTION
                                 )
                         )
@@ -221,10 +225,10 @@ public class InstallCommand {
                         .addRolePermissionOverride(event.getGuild().getPublicRole().getIdLong(),
                                 Arrays.asList(
                                         Permission.MESSAGE_HISTORY,
-                                        Permission.MESSAGE_READ
+                                        Permission.VIEW_CHANNEL
                                 ),
                                 Arrays.asList(
-                                        Permission.MESSAGE_WRITE,
+                                        Permission.MESSAGE_SEND,
                                         Permission.MESSAGE_ADD_REACTION
                                 )
                         ).complete();
@@ -270,8 +274,8 @@ public class InstallCommand {
                         )
                         .build();
 
-                Message message = Objects.requireNonNull(ticketTextChannel).sendMessage(messageEmbed).complete();
-                message.addReaction("\uD83D\uDCE9").complete();
+                Message message = Objects.requireNonNull(ticketTextChannel).sendMessageEmbeds(messageEmbed).complete();
+                message.addReaction(Emoji.fromUnicode("\uD83D\uDCE9")).complete();
 
                 guildModel.setTicketCreateTextMessageId(message.getId());
 
@@ -279,7 +283,7 @@ public class InstallCommand {
                         ? ":arrows_counterclockwise: :envelope_with_arrow: wurde neu erstellt\n"
                         : ":star: :envelope_with_arrow: wurde initial erstellt\n";
             } else if (messageById.getReactions().size() == 0) {
-                messageById.addReaction("\uD83D\uDCE9").complete();
+                messageById.addReaction(Emoji.fromUnicode("\uD83D\uDCE9")).complete();
                 log += ":star: :envelope_with_arrow: Reaktion wurde hinzugefügt\n";
             } else {
                 log += ":white_check_mark: :envelope_with_arrow: existiert\n";
@@ -302,24 +306,21 @@ public class InstallCommand {
                 TextChannel textChannel = event.getGuild().createTextChannel("\uD83C\uDFAB-ticket-log")
                         .addRolePermissionOverride(event.getGuild().getPublicRole().getIdLong(),
                                 Collections.emptyList(),
-                                Arrays.asList(
-                                        Permission.VIEW_CHANNEL,
-                                        Permission.MESSAGE_READ
+                                Collections.singletonList(
+                                        Permission.VIEW_CHANNEL
                                 )
                         )
                         .addRolePermissionOverride(Long.parseLong(guildModel.getTicketSupportRoleId()),
                                 Arrays.asList(
                                         Permission.VIEW_CHANNEL,
-                                        Permission.MESSAGE_HISTORY,
-                                        Permission.MESSAGE_READ
+                                        Permission.MESSAGE_HISTORY
                                 ),
                                 Collections.emptyList()
                         )
                         .addRolePermissionOverride(Long.parseLong(guildModel.getTicketSupportPlusRoleId()),
                                 Arrays.asList(
                                         Permission.VIEW_CHANNEL,
-                                        Permission.MESSAGE_HISTORY,
-                                        Permission.MESSAGE_READ
+                                        Permission.MESSAGE_HISTORY
                                 ),
                                 Collections.emptyList()
                         )
@@ -338,8 +339,8 @@ public class InstallCommand {
             log += ":bug: `\uD83C\uDFAB-ticket-log` konnte nicht erstellt werden\n";
         }
 
-        guildRepository.save(guildModel);
+        this.guildRepository.save(guildModel);
 
-        event.reply(log);
+        event.getHook().sendMessage(log).queue();
     }
 }

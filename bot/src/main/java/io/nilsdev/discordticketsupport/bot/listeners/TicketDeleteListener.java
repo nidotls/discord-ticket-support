@@ -16,14 +16,15 @@ import io.nilsdev.discordticketsupport.bot.utils.MessageUtil;
 import io.nilsdev.discordticketsupport.common.models.GuildModel;
 import io.nilsdev.discordticketsupport.common.repositories.GuildRepository;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
+import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.awt.*;
 import java.util.Date;
 import java.util.Objects;
@@ -40,7 +41,9 @@ public class TicketDeleteListener extends ListenerAdapter {
     }
 
     @Override
-    public void onGuildMessageReactionAdd(@Nonnull GuildMessageReactionAddEvent event) {
+    public void onMessageReactionAdd(@NotNull MessageReactionAddEvent event) {
+        TextChannel channel = event.getGuildChannel().asTextChannel();
+
         // Filter Myself
         if (event.getJDA().getSelfUser().equals(event.getMember().getUser())) {
             this.logger.debug("Ignored self: {}", event.getMember().getUser().getAsTag());
@@ -48,13 +51,14 @@ public class TicketDeleteListener extends ListenerAdapter {
         }
 
         // Check reaction emote
-        if (!event.getReactionEmote().getName().equals("\uD83D\uDEAB")) {
-            this.logger.debug("Ignored reaction: {}", event.getReactionEmote().getName());
+        UnicodeEmoji reaction = event.getEmoji().asUnicode();
+        if (!reaction.getName().equals("\uD83D\uDEAB")) {
+            this.logger.debug("Ignored reaction: {}", reaction.getName());
             return;
         }
 
-        if (event.getChannel().getParent() == null) {
-            this.logger.debug("Ignored no parent: {}", event.getChannel().getParent());
+        if (channel.getParentCategory() == null) {
+            this.logger.debug("Ignored no parent: {}", channel);
             return;
         }
 
@@ -66,9 +70,9 @@ public class TicketDeleteListener extends ListenerAdapter {
             return;
         }
         // Check if guild's ticket create channel
-        if (!event.getChannel().getParent().getId().equals(guildModel.getTicketSupportCategoryId())
-                && !event.getChannel().getParent().getId().equals(guildModel.getTicketArchiveCategoryId())) {
-            this.logger.debug("Ignored parent id does not match: {} != {} && {} != {}", event.getChannel().getParent().getId(), guildModel.getTicketSupportCategoryId(), event.getChannel().getParent().getId(), guildModel.getTicketArchiveCategoryId());
+        if (!channel.getParentCategoryId().equals(guildModel.getTicketSupportCategoryId())
+                && !channel.getParentCategoryId().equals(guildModel.getTicketArchiveCategoryId())) {
+            this.logger.debug("Ignored parent id does not match: {} != {} && {} != {}", channel.getParentCategoryId(), guildModel.getTicketSupportCategoryId(), channel.getParentCategoryId(), guildModel.getTicketArchiveCategoryId());
             return;
         }
 
@@ -86,13 +90,13 @@ public class TicketDeleteListener extends ListenerAdapter {
         if (event.getMember().getRoles().stream().noneMatch(role -> role.getId().equals(guildModel.getTicketSupportPlusRoleId()))) {
             this.logger.debug("Ignored member has no support plus role: {}", event.getMember().getUser().getAsTag());
 
-            MessageUtil.disposableMessage(this.logger, event.getChannel(), event.getMember().getUser().getAsMention() + ", du darfst keine Tickets löschen!");
+            MessageUtil.disposableMessage(this.logger, channel, event.getMember().getUser().getAsMention() + ", du darfst keine Tickets löschen!");
             return;
         }
 
-        String topic = event.getChannel().getTopic();
+        String topic = channel.getTopic();
 
-        event.getChannel().delete()
+        channel.delete()
                 .queue(aVoid -> this.logger.debug("Ticket deleted"), this.logger::throwing);
 
         // Log
@@ -115,13 +119,13 @@ public class TicketDeleteListener extends ListenerAdapter {
             userMention = "Undefined";
         }
 
-        embedBuilder.setTitle("Deleted Ticket `" + event.getChannel().getName() + "`");
+        embedBuilder.setTitle("Deleted Ticket `" + channel.getName() + "`");
         embedBuilder.setColor(Color.RED);
-        embedBuilder.addField("Ticket", event.getChannel().getAsMention(), false);
+        embedBuilder.addField("Ticket", channel.getAsMention(), false);
         embedBuilder.addField("Supporter", event.getUser().getAsMention(), true);
         embedBuilder.addField("User", userMention, true);
         embedBuilder.setTimestamp(new Date().toInstant());
 
-        logTextChannel.sendMessage(embedBuilder.build()).queue();
+        logTextChannel.sendMessageEmbeds(embedBuilder.build()).queue();
     }
 }
