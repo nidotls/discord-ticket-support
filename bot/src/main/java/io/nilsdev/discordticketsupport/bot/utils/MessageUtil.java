@@ -11,7 +11,7 @@
 
 package io.nilsdev.discordticketsupport.bot.utils;
 
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import org.apache.logging.log4j.Logger;
 
 public class MessageUtil {

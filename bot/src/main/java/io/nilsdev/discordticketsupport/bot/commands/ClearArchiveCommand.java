@@ -1,52 +1,56 @@
 package io.nilsdev.discordticketsupport.bot.commands;
 
-import com.github.kaktushose.jda.commands.annotations.Command;
-import com.github.kaktushose.jda.commands.annotations.CommandController;
-import com.github.kaktushose.jda.commands.entities.CommandEvent;
-import io.nilsdev.discordticketsupport.bot.Bot;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import io.nilsdev.discordticketsupport.bot.command.TicketCommand;
 import io.nilsdev.discordticketsupport.bot.utils.MessageUtil;
 import io.nilsdev.discordticketsupport.common.models.GuildModel;
 import io.nilsdev.discordticketsupport.common.repositories.GuildRepository;
-import net.dv8tion.jda.api.entities.Category;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.GuildChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.Category;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-@CommandController
-public class ClearArchiveCommand {
+@Singleton
+public class ClearArchiveCommand extends TicketCommand {
 
-    private final Logger logger = LogManager.getLogger("ClearArchiveCommand");
+    private final Logger logger = LogManager.getLogger(ClearArchiveCommand.class);
 
     private final GuildRepository guildRepository;
 
-    public ClearArchiveCommand() {
-        this.guildRepository = Bot.getInjector().getInstance(GuildRepository.class);;
+    @Inject
+    public ClearArchiveCommand(GuildRepository guildRepository) {
+        super("cleararchive", "");
+        this.guildRepository = guildRepository;
     }
 
-    @Command("cleararchive")
-    public void onCommand(CommandEvent event) {
+    @Override
+    public void process(SlashCommandInteractionEvent event) {
+        event.deferReply(true).queue();
+
         Guild guild = event.getGuild();
 
         GuildModel guildModel = this.guildRepository.findByGuildId(guild.getId());
 
         // Check if guild exists
         if (guildModel == null) {
-            event.reply("Ticket System ist nicht installiert!");
-            this.logger.debug("Ignored guild null: {}", guildModel);
+            event.getHook().sendMessage("Ticket System ist nicht installiert!").queue();
+            this.logger.debug("Ignored guild null: {}", guild.getId());
             return;
         }
 
-        if(guildModel.getTicketArchiveCategoryId() == null) {
-            event.reply("Ticket System ist nicht installiert!");
+        if (guildModel.getTicketArchiveCategoryId() == null) {
+            event.getHook().sendMessage("Ticket System ist nicht installiert!").queue();
             this.logger.debug("Ignored guild ticketArchiveCategoryId null: {}", guildModel);
             return;
         }
 
         Category categoryById = guild.getCategoryById(guildModel.getTicketArchiveCategoryId());
 
-        if(categoryById == null) {
-            event.reply("Ticket Archiv existiert nicht!");
+        if (categoryById == null) {
+            event.getHook().sendMessage("Ticket Archiv existiert nicht!").queue();
             this.logger.debug("Ignored guild ticketArchiveCategory null: {}", guildModel);
             return;
         }
@@ -54,7 +58,7 @@ public class ClearArchiveCommand {
         if (event.getMember().getRoles().stream().noneMatch(role -> role.getId().equals(guildModel.getTicketSupportPlusRoleId()))) {
             this.logger.debug("Ignored member has no support+ role: {}", event.getMember().getUser().getAsTag());
 
-            MessageUtil.disposableMessage(this.logger, event.getChannel(), event.getMember().getUser().getAsMention() + ", du darfst das Archiv nicht löschen!");
+            event.getHook().sendMessage("Du darfst das Archiv nicht löschen!").queue();
             return;
         }
 
@@ -63,6 +67,6 @@ public class ClearArchiveCommand {
             channel.delete().queue();
         }
 
-        event.reply("Archiv geleert!");
+        event.getHook().sendMessage("Archiv geleert!").queue();
     }
 }

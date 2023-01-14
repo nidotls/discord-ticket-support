@@ -11,51 +11,59 @@
 
 package io.nilsdev.discordticketsupport.bot.commands;
 
-import com.github.kaktushose.jda.commands.annotations.Command;
-import com.github.kaktushose.jda.commands.annotations.CommandController;
-import com.github.kaktushose.jda.commands.entities.CommandEvent;
-import io.nilsdev.discordticketsupport.bot.Bot;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import io.nilsdev.discordticketsupport.bot.command.TicketCommand;
 import io.nilsdev.discordticketsupport.common.models.GuildModel;
 import io.nilsdev.discordticketsupport.common.repositories.GuildRepository;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Category;
-import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.Category;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.exceptions.HierarchyException;
 
 import java.util.Optional;
 
-@CommandController
-public class UninstallCommand {
+@Singleton
+public class UninstallCommand extends TicketCommand {
 
-    @Command("uninstall")
-    public void onCommand(CommandEvent event) {
+    private final GuildRepository guildRepository;
+
+    @Inject
+    public UninstallCommand(GuildRepository guildRepository) {
+        super("uninstall", "description");
+        this.guildRepository = guildRepository;
+    }
+
+    @Override
+    public void process(SlashCommandInteractionEvent event) {
+        event.deferReply(true).queue();
+
         if (!event.getMember().hasPermission(Permission.ADMINISTRATOR)) {
-            event.reply(event.getAuthor().getAsMention() + ", der Befehl install erfordert, dass du die Berechtigung \"Administrator\" hast.");
+            event.getHook().sendMessage(event.getMember().getAsMention() + ", der Befehl install erfordert, dass du die Berechtigung \"Administrator\" hast.").queue();
             return;
         }
 
         if (!event.getGuild().getMember(event.getJDA().getSelfUser()).hasPermission(Permission.ADMINISTRATOR)) {
-            event.reply(event.getAuthor().getAsMention() + ", ich brauche die Berechtigung \"Administrator\", damit der Befehl \\`install\\` funktioniert.`");
+            event.getHook().sendMessage(event.getMember().getAsMention() + ", ich brauche die Berechtigung \"Administrator\", damit der Befehl \\`install\\` funktioniert.`").queue();
             return;
         }
 
-        GuildRepository guildRepository = Bot.getInjector().getInstance(GuildRepository.class);
-
-        GuildModel guildModel = guildRepository.findByGuildId(event.getGuild().getId());
+        GuildModel guildModel = this.guildRepository.findByGuildId(event.getGuild().getId());
 
         if (guildModel == null) {
             guildModel = GuildModel.builder()
                     .guildId(event.getGuild().getId())
                     .build();
-            guildRepository.save(guildModel);
+            this.guildRepository.save(guildModel);
         }
 
         // ---
 
         if (guildModel == null) {
-            event.reply("Ich bin auf diesem Discord-Server nicht installiert.");
+            event.getHook().sendMessage("Ich bin auf diesem Discord-Server nicht installiert.").queue();
             return;
         }
 
@@ -232,14 +240,14 @@ public class UninstallCommand {
 
         guildModel.setTicketCreateTextMessageId(null);
 
-        guildRepository.save(guildModel);
+        this.guildRepository.save(guildModel);
 
         try {
-            event.reply(log);
+            event.getHook().sendMessage(log).queue();
         } catch (Exception e) {
             Optional<TextChannel> optionalGuildChannel = event.getGuild().getTextChannels().stream().findFirst();
 
-            if(!optionalGuildChannel.isPresent()) return;
+            if (!optionalGuildChannel.isPresent()) return;
 
             optionalGuildChannel.get().sendMessage(log).queue();
         }

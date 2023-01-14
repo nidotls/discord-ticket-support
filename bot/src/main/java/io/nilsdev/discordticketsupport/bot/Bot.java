@@ -11,12 +11,13 @@
 
 package io.nilsdev.discordticketsupport.bot;
 
-import com.github.kaktushose.jda.commands.entities.JDACommands;
-import com.github.kaktushose.jda.commands.entities.JDACommandsBuilder;
+import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import io.nilsdev.discordticketsupport.bot.command.EmbedFactory;
-import io.nilsdev.discordticketsupport.bot.command.HelpMessageSender;
+import io.nilsdev.discordticketsupport.bot.command.CommandListener;
+import io.nilsdev.discordticketsupport.bot.command.CommandManager;
+import io.nilsdev.discordticketsupport.bot.command.SlashCommandManager;
+import io.nilsdev.discordticketsupport.bot.config.ConfigProperties;
 import io.nilsdev.discordticketsupport.bot.listeners.TicketCloseListener;
 import io.nilsdev.discordticketsupport.bot.listeners.TicketCreateListener;
 import io.nilsdev.discordticketsupport.bot.listeners.TicketDeleteListener;
@@ -39,13 +40,6 @@ import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
 
 import javax.security.auth.login.LoginException;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.util.Objects;
-import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -59,91 +53,60 @@ public class Bot {
 
     private final Logger logger;
 
-    public Bot(String[] args) throws LoginException, InterruptedException {
+    public Bot(String[] args) {
         AppLogger.create();
         this.logger = LogManager.getLogger("Bot");
 
         // ---
 
-        File file = new File("bot.properties");
-
-        if (!file.exists()) {
-            try (InputStream input = Bot.class.getClassLoader().getResourceAsStream("bot.properties")) {
-
-                Files.copy(Objects.requireNonNull(input), file.toPath());
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-        }
-
-        Properties properties = new Properties();
-
-        try (InputStream input = new FileInputStream(file)) {
-            properties.load(input);
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
+        ConfigProperties config = new ConfigProperties();
 
         // ---
 
-        if (properties.getProperty("debug", "false").equalsIgnoreCase("true")) {
+        if (config.isDebug()) {
             final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
-            final Configuration config = ctx.getConfiguration();
-            config.getRootLogger().setLevel(Level.DEBUG);
+            final Configuration configuration = ctx.getConfiguration();
+            configuration.getRootLogger().setLevel(Level.DEBUG);
             ctx.updateLoggers();
         }
 
         // ---
 
-        if (properties.getProperty("sentry.enabled", "false").equalsIgnoreCase("true")) {
+        if (config.isSentryEnabled()) {
             Sentry.init(options -> {
-                options.setDsn(properties.getProperty("sentry.dsn"));
+                options.setDsn(config.getSentryDsn());
                 options.setRelease(VersionUtil.getVersion());
             });
-        } else {
-            //Sentry.init(options -> {
-            //    options.setDsn("");
-            //    options.setRelease(VersionUtil.getVersion());
-            //});
         }
 
-
         // ---
 
-        Config config = Config.builder()
-                .databaseHost(properties.getProperty("mongodb.host"))
-                .databasePort(Integer.parseInt(properties.getProperty("mongodb.port")))
-                .databaseUser(properties.getProperty("mongodb.database"))
-                .databasePassword(properties.getProperty("mongodb.username"))
-                .databaseName(properties.getProperty("mongodb.password"))
+        Config commonConfig = Config.builder()
+                .databaseHost(config.getMongodbHost())
+                .databasePort(config.getMongodbPort())
+                .databaseUser(config.getMongodbUsername())
+                .databasePassword(config.getMongodbPassword())
+                .databaseName(config.getMongodbDatabase())
                 .build();
 
-        injector = Guice.createInjector(new CommonModule(config));
+        injector = Guice.createInjector(new CommonModule(commonConfig), new AbstractModule() {
+            @Override
+            protected void configure() {
+                this.bind(CommandManager.class).to(SlashCommandManager.class);
+            }
+        });
 
         // ---
 
-        ShardManager shardManager = DefaultShardManagerBuilder.createDefault(properties.getProperty("discord.token"))
-                .setShardsTotal(3)
-                .setShards(0, 2)
+        ShardManager shardManager = DefaultShardManagerBuilder.createDefault(config.getDiscordToken())
+                .setShardsTotal(config.getDiscordShardsTotal())
+                .setShards(config.getDiscordShardsMin(), config.getDiscordShardsMax())
                 .addEventListeners(injector.getInstance(TicketCloseListener.class))
                 .addEventListeners(injector.getInstance(TicketCreateListener.class))
                 .addEventListeners(injector.getInstance(TicketDeleteListener.class))
                 .addEventListeners(injector.getInstance(TicketOpenListener.class))
+                .addEventListeners(injector.getInstance(CommandListener.class))
                 .build();
-
-        // ---
-
-        JDACommands jdaCommands = new JDACommandsBuilder(shardManager)
-                .setEmbedFactory(new EmbedFactory())
-                .setHelpMessageSender(new HelpMessageSender())
-                .build();
-
-        jdaCommands.getSettings().setPrefix(".ticket ");
-        jdaCommands.getSettings().setIgnoreBots(true);
-        jdaCommands.getSettings().setIgnoreLabelCase(true);
-        jdaCommands.getSettings().setBotMentionPrefix(true);
-
-        // jdaCommands.getSettings().getHelpLabels().clear();
 
         // ---
 
