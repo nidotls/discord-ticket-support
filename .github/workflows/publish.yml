@@ -84,7 +84,7 @@ jobs:
           password: ${{ github.token }}
 
       - name: Build with Maven
-        run: mvn -B compile -DskipTests=true jib:build -Djib.to.image=${{ format('ghcr.io/{0}/{1}:{2}', github.repository_owner, env.IMAGE_NAME, steps.meta.outputs.version) }} -Djib.to.tags=${{ steps.docker_tags.outputs.tags }}
+        run: mvn -B package -DskipTests=true jib:build -Djib.to.image=${{ format('ghcr.io/{0}/{1}:{2}', github.repository_owner, env.IMAGE_NAME, steps.meta.outputs.version) }} -Djib.to.tags=${{ steps.docker_tags.outputs.tags }}
 
       # release if main branch and release needed
       - name: Create Release
