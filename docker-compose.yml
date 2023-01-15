@@ -1,7 +1,7 @@
 version: '3.3'
 services:
   mongo:
-    image: bitnami/mongodb:5
+    image: bitnami/mongodb:5.0.9
     restart: always
     environment:
       MONGODB_ROOT_USER: root
