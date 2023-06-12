@@ -25,9 +25,10 @@
 
 package io.nilsdev.discordticketsupport.common.models;
 
+import dev.morphia.annotations.Entity;
+import dev.morphia.annotations.PrePersist;
 import io.nilsdev.discordticketsupport.common.domain.Model;
 import lombok.*;
-import xyz.morphia.annotations.*;
 
 @Getter
 @Setter
@@ -35,7 +36,7 @@ import xyz.morphia.annotations.*;
 @AllArgsConstructor
 @NoArgsConstructor(force = true)
 @ToString(callSuper = true)
-@Entity(value = "stats", noClassnameStored = true)
+@Entity(value = "stats", useDiscriminator = false)
 public class StatsModel extends Model {
 
     private long guilds;

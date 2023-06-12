@@ -46,11 +46,7 @@ public class ConfigProperties {
     private final int discordShardsTotal;
     private final int discordShardsMin;
     private final int discordShardsMax;
-    private final String mongodbHost;
-    private final int mongodbPort;
-    private final String mongodbDatabase;
-    private final String mongodbUsername;
-    private final String mongodbPassword;
+    private final String mongodbUri;
 
     private Properties properties;
 
@@ -62,11 +58,7 @@ public class ConfigProperties {
         this.discordShardsTotal = this.getInteger("DISCORD_SHARDS_TOTAL", 3);
         this.discordShardsMin = this.getInteger("DISCORD_SHARDS_MIN", 0);
         this.discordShardsMax = this.getInteger("DISCORD_SHARDS_MAX", 2);
-        this.mongodbHost = this.getString("MONGODB_HOST");
-        this.mongodbPort = this.getInteger("MONGODB_PORT");
-        this.mongodbDatabase = this.getString("MONGODB_DATABASE");
-        this.mongodbUsername = this.getString("MONGODB_USERNAME");
-        this.mongodbPassword = this.getString("MONGODB_PASSWORD");
+        this.mongodbUri = this.getString("MONGODB_URI");
     }
 
     private String getString(String path) {

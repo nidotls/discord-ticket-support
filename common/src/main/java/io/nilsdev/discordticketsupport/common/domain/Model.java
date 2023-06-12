@@ -27,8 +27,8 @@ package io.nilsdev.discordticketsupport.common.domain;
 
 import lombok.*;
 import org.bson.types.ObjectId;
-import xyz.morphia.annotations.Id;
-import xyz.morphia.annotations.PrePersist;
+import dev.morphia.annotations.Id;
+import dev.morphia.annotations.PrePersist;
 
 import java.util.Date;
 

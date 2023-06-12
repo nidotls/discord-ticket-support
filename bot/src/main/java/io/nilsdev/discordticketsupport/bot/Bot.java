@@ -53,7 +53,6 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
 
-import javax.security.auth.login.LoginException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -96,11 +95,7 @@ public class Bot {
         // ---
 
         Config commonConfig = Config.builder()
-                .databaseHost(config.getMongodbHost())
-                .databasePort(config.getMongodbPort())
-                .databaseUser(config.getMongodbUsername())
-                .databasePassword(config.getMongodbPassword())
-                .databaseName(config.getMongodbDatabase())
+                .databaseUri(config.getMongodbUri())
                 .build();
 
         injector = Guice.createInjector(new CommonModule(commonConfig), new AbstractModule() {

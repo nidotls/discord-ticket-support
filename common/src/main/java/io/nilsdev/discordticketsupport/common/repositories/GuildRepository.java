@@ -28,10 +28,11 @@ package io.nilsdev.discordticketsupport.common.repositories;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
+import dev.morphia.Datastore;
+import dev.morphia.query.filters.Filters;
 import io.nilsdev.discordticketsupport.common.Constants;
 import io.nilsdev.discordticketsupport.common.domain.Repository;
 import io.nilsdev.discordticketsupport.common.models.GuildModel;
-import xyz.morphia.Datastore;
 
 @Singleton
 public class GuildRepository extends Repository<GuildModel> {
@@ -43,7 +44,7 @@ public class GuildRepository extends Repository<GuildModel> {
 
     public GuildModel findByGuildId(String guildId) {
         return this.createQuery()
-                .field("guildId").equal(guildId)
-                .get();
+                .filter(Filters.eq("guildId", guildId))
+                .first();
     }
 }

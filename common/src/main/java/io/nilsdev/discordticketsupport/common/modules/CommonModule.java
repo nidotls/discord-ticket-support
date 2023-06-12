@@ -27,17 +27,14 @@ package io.nilsdev.discordticketsupport.common.modules;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
-import com.google.inject.name.Named;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoCredential;
-import com.mongodb.ServerAddress;
+import com.google.inject.name.Names;
+import com.mongodb.ConnectionString;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import dev.morphia.Datastore;
 import io.nilsdev.discordticketsupport.common.Constants;
 import io.nilsdev.discordticketsupport.common.config.Config;
-import io.nilsdev.discordticketsupport.common.providers.MorphiaProvider;
-import xyz.morphia.Datastore;
-import xyz.morphia.Morphia;
-
-import java.util.Collections;
+import io.nilsdev.discordticketsupport.common.provider.DatastoreProvider;
 
 public class CommonModule extends AbstractModule {
 
@@ -49,25 +46,19 @@ public class CommonModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        this.bind(Morphia.class).toProvider(MorphiaProvider.class).asEagerSingleton();
+        this.bind(Datastore.class)
+                .annotatedWith(Names.named(Constants.DATASTORE))
+                .toProvider(DatastoreProvider.class)
+                .asEagerSingleton();
     }
 
     @Provides
     public MongoClient provideMongoClient() {
-        ServerAddress serverAddress = new ServerAddress(this.config.getDatabaseHost(), this.config.getDatabasePort());
+        String finalUri = this.config.databaseUri().contains("?")
+                ? this.config.databaseUri() + "&uuidrepresentation=javaLegacy"
+                : this.config.databaseUri() + "?uuidrepresentation=javaLegacy";
 
-        MongoCredential credential = MongoCredential.createCredential(this.config.getDatabaseUser(), this.config.getDatabaseName(), this.config.getDatabasePassword().toCharArray());
-
-        return new MongoClient(serverAddress, Collections.singletonList(credential));
-    }
-
-    @Provides
-    @Named(Constants.DATASTORE)
-    public Datastore provideDatastore(MongoClient mongoClient, Morphia morphia) {
-        Datastore datastore = morphia.createDatastore(mongoClient, this.config.getDatabaseName());
-        datastore.ensureIndexes();
-
-        return datastore;
+        return MongoClients.create(new ConnectionString(finalUri));
     }
 
     @Provides

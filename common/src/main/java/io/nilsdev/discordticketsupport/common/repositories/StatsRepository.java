@@ -32,7 +32,7 @@ import io.nilsdev.discordticketsupport.common.Constants;
 import io.nilsdev.discordticketsupport.common.domain.Repository;
 import io.nilsdev.discordticketsupport.common.models.GuildModel;
 import io.nilsdev.discordticketsupport.common.models.StatsModel;
-import xyz.morphia.Datastore;
+import dev.morphia.Datastore;
 
 @Singleton
 public class StatsRepository extends Repository<StatsModel> {

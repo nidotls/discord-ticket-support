@@ -25,9 +25,9 @@
 
 package io.nilsdev.discordticketsupport.common.models;
 
+import dev.morphia.annotations.*;
 import io.nilsdev.discordticketsupport.common.domain.Model;
 import lombok.*;
-import xyz.morphia.annotations.*;
 
 @Getter
 @Setter
@@ -35,7 +35,7 @@ import xyz.morphia.annotations.*;
 @AllArgsConstructor
 @NoArgsConstructor(force = true)
 @ToString(callSuper = true)
-@Entity(value = "guilds", noClassnameStored = true)
+@Entity(value = "guilds", useDiscriminator = false)
 @Indexes({
         @Index(options = @IndexOptions(unique = true), fields = {
                 @Field("guildId")
