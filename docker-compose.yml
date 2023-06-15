@@ -1,0 +1,31 @@
+version: '3.3'
+services:
+  mongo:
+    image: bitnami/mongodb:5.0.9
+    restart: always
+    environment:
+      MONGODB_ROOT_USER: root
+      MONGODB_ROOT_PASSWORD: example
+      MONGODB_DATABASE: ticketbot
+      MONGODB_USERNAME: ticketbot
+      MONGODB_PASSWORD: password
+    ports:
+      - "27917:27017"
+    volumes:
+      - mongo:/bitnami/mongodb
+
+  bot:
+    image: ghcr.io/thenilsdev/discord-ticket-support:develop
+    restart: always
+    env_file:
+      - ".env"
+    environment:
+      DEBUG: false
+      # DISCORD_TOKEN:
+      DISCORD_SHARDS_TOTAL: 1
+      DISCORD_SHARDS_MIN: 0
+      DISCORD_SHARDS_MAX: 0
+      MONGODB_URI: mongodb://ticketbot:password@mongo/ticketbot
+
+volumes:
+  mongo: { }

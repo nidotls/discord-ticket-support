@@ -1,3 +1,28 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2023 nils
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ */
+
 package io.nilsdev.discordticketsupport.bot.config;
 
 import io.nilsdev.discordticketsupport.bot.Bot;
@@ -15,33 +40,21 @@ import java.util.Properties;
 public class ConfigProperties {
 
     private final boolean debug;
-    private final boolean sentryEnabled;
-    private final String sentryDsn;
     private final String discordToken;
     private final int discordShardsTotal;
     private final int discordShardsMin;
     private final int discordShardsMax;
-    private final String mongodbHost;
-    private final int mongodbPort;
-    private final String mongodbDatabase;
-    private final String mongodbUsername;
-    private final String mongodbPassword;
+    private final String mongodbUri;
 
     private Properties properties;
 
     public ConfigProperties() {
         this.debug = this.getBoolean("DEBUG", false);
-        this.sentryEnabled = this.getBoolean("SENTRY_ENABLED", false);
-        this.sentryDsn = this.getString("SENTRY_DSN");
         this.discordToken = this.getString("DISCORD_TOKEN");
         this.discordShardsTotal = this.getInteger("DISCORD_SHARDS_TOTAL", 3);
         this.discordShardsMin = this.getInteger("DISCORD_SHARDS_MIN", 0);
         this.discordShardsMax = this.getInteger("DISCORD_SHARDS_MAX", 2);
-        this.mongodbHost = this.getString("MONGODB_HOST");
-        this.mongodbPort = this.getInteger("MONGODB_PORT");
-        this.mongodbDatabase = this.getString("MONGODB_DATABASE");
-        this.mongodbUsername = this.getString("MONGODB_USERNAME");
-        this.mongodbPassword = this.getString("MONGODB_PASSWORD");
+        this.mongodbUri = this.getString("MONGODB_URI");
     }
 
     private String getString(String path) {
