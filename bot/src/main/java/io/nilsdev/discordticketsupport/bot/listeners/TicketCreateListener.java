@@ -65,7 +65,7 @@ public class TicketCreateListener extends ListenerAdapter {
 
         // Filter Myself
         if (event.getJDA().getSelfUser().equals(event.getMember().getUser())) {
-            log.debug("Ignored self: {}", event.getMember().getUser().getAsTag());
+            log.debug("Ignored self: {}", event.getMember().getUser().getName());
             return;
         }
 
@@ -140,13 +140,13 @@ public class TicketCreateListener extends ListenerAdapter {
 
         // Filter Bots
         if (event.getMember().getUser().isBot()) {
-            log.debug("Ignored bot: {}", event.getMember().getUser().getAsTag());
+            log.debug("Ignored bot: {}", event.getMember().getUser().getName());
             return;
         }
 
         // Support Ban
         if (event.getMember().getRoles().stream().anyMatch(role -> role.getId().equals(guildModel.getTicketSupportBanRoleId()))) {
-            log.debug("Ignored member hast ban role: {}", event.getMember().getUser().getAsTag());
+            log.debug("Ignored member hast ban role: {}", event.getMember().getUser().getName());
 
             MessageUtil.disposableMessage(log, channel, event.getMember().getUser().getAsMention() + ", du darfst keine Tickets erstellen!");
             return;

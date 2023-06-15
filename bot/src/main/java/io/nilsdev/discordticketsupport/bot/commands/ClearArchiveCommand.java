@@ -78,7 +78,7 @@ public class ClearArchiveCommand extends TicketCommand {
         }
 
         if (event.getMember().getRoles().stream().noneMatch(role -> role.getId().equals(guildModel.getTicketSupportPlusRoleId()))) {
-            log.debug("Ignored member has no support+ role: {}", event.getMember().getUser().getAsTag());
+            log.debug("Ignored member has no support+ role: {}", event.getMember().getUser().getName());
 
             event.getHook().sendMessage("Du darfst das Archiv nicht löschen!").queue();
             return;
