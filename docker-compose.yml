@@ -10,24 +10,22 @@ services:
       MONGODB_USERNAME: ticketbot
       MONGODB_PASSWORD: password
     ports:
-      - "27017:27017"
+      - "27917:27017"
     volumes:
       - mongo:/bitnami/mongodb
 
   bot:
-    image: ghcr.io/thenilsdev/discord-ticket-support:2
+    image: ghcr.io/thenilsdev/discord-ticket-support:develop
     restart: always
+    env_file:
+      - ".env"
     environment:
-      - DEBUG=false
-      - DISCORD_TOKEN=token
-      - DISCORD_SHARDS_TOTAL=1
-      - DISCORD_SHARDS_MIN=0
-      - DISCORD_SHARDS_MAX=0
-      - MONGODB_HOST=mongo
-      - MONGODB_PORT=27017
-      - MONGODB_DATABASE=ticketbot
-      - MONGODB_USERNAME=ticketbot
-      - MONGODB_PASSWORD=password
+      DEBUG: false
+      # DISCORD_TOKEN:
+      DISCORD_SHARDS_TOTAL: 1
+      DISCORD_SHARDS_MIN: 0
+      DISCORD_SHARDS_MAX: 0
+      MONGODB_URI: mongodb://ticketbot:password@mongo/ticketbot
 
 volumes:
   mongo: { }
