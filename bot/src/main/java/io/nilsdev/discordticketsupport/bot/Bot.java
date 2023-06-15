@@ -99,7 +99,7 @@ public class Bot {
 
         log.info("Shard Status {}", shardManager.getStatuses().values());
         log.info("Shard Info {}", shardManager.getShardById(0).getShardInfo().getShardString());
-        log.info("Logged in as {}", shardManager.getShardById(0).getSelfUser().getAsTag());
+        log.info("Logged in as {}", shardManager.getShardById(0).getSelfUser().getName());
 
         // ---
 

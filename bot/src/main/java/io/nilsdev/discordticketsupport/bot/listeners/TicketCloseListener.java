@@ -61,7 +61,7 @@ public class TicketCloseListener extends ListenerAdapter {
 
         // Filter Myself
         if (event.getJDA().getSelfUser().equals(event.getMember().getUser())) {
-            log.debug("Ignored self: {}", event.getMember().getUser().getAsTag());
+            log.debug("Ignored self: {}", event.getMember().getUser().getName());
             return;
         }
 
@@ -103,7 +103,7 @@ public class TicketCloseListener extends ListenerAdapter {
 
         // Filter Bots
         if (event.getMember().getUser().isBot()) {
-            log.debug("Ignored bot: {}", event.getMember().getUser().getAsTag());
+            log.debug("Ignored bot: {}", event.getMember().getUser().getName());
             return;
         }
 
@@ -114,7 +114,7 @@ public class TicketCloseListener extends ListenerAdapter {
 
         // Support Ban
         if (event.getMember().getRoles().stream().noneMatch(role -> role.getId().equals(guildModel.getTicketSupportRoleId()) || role.getId().equals(guildModel.getTicketSupportPlusRoleId()))) {
-            log.debug("Ignored member has no support role: {}", event.getMember().getUser().getAsTag());
+            log.debug("Ignored member has no support role: {}", event.getMember().getUser().getName());
 
             MessageUtil.disposableMessage(log, channel, event.getMember().getUser().getAsMention() + ", du darfst keine Tickets schließen!");
             return;
