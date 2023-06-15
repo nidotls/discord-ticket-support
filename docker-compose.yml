@@ -19,8 +19,6 @@ services:
     restart: always
     environment:
       - DEBUG=false
-      - SENTRY_ENABLED=false
-      - SENTRY_DSN=
       - DISCORD_TOKEN=token
       - DISCORD_SHARDS_TOTAL=1
       - DISCORD_SHARDS_MIN=0
@@ -30,9 +28,6 @@ services:
       - MONGODB_DATABASE=ticketbot
       - MONGODB_USERNAME=ticketbot
       - MONGODB_PASSWORD=password
-    volumes:
-      - bot-logs:/logs
 
 volumes:
   mongo: { }
-  bot-logs: { }

@@ -27,7 +27,6 @@ package io.nilsdev.discordticketsupport.bot.utils;
 
 import io.nilsdev.discordticketsupport.bot.Bot;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 

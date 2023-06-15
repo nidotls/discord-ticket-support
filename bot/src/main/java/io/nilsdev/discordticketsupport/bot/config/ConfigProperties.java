@@ -40,8 +40,6 @@ import java.util.Properties;
 public class ConfigProperties {
 
     private final boolean debug;
-    private final boolean sentryEnabled;
-    private final String sentryDsn;
     private final String discordToken;
     private final int discordShardsTotal;
     private final int discordShardsMin;
@@ -52,8 +50,6 @@ public class ConfigProperties {
 
     public ConfigProperties() {
         this.debug = this.getBoolean("DEBUG", false);
-        this.sentryEnabled = this.getBoolean("SENTRY_ENABLED", false);
-        this.sentryDsn = this.getString("SENTRY_DSN");
         this.discordToken = this.getString("DISCORD_TOKEN");
         this.discordShardsTotal = this.getInteger("DISCORD_SHARDS_TOTAL", 3);
         this.discordShardsMin = this.getInteger("DISCORD_SHARDS_MIN", 0);

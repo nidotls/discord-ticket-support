@@ -28,11 +28,10 @@ package io.nilsdev.discordticketsupport.common.repositories;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
+import dev.morphia.Datastore;
 import io.nilsdev.discordticketsupport.common.Constants;
 import io.nilsdev.discordticketsupport.common.domain.Repository;
-import io.nilsdev.discordticketsupport.common.models.GuildModel;
 import io.nilsdev.discordticketsupport.common.models.StatsModel;
-import dev.morphia.Datastore;
 
 @Singleton
 public class StatsRepository extends Repository<StatsModel> {

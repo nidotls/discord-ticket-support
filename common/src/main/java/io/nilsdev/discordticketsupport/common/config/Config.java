@@ -26,7 +26,6 @@
 package io.nilsdev.discordticketsupport.common.config;
 
 import lombok.Builder;
-import lombok.Getter;
 
 @Builder
 public record Config(String databaseUri) {

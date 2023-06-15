@@ -27,7 +27,6 @@ package io.nilsdev.discordticketsupport.bot.commands;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import io.nilsdev.discordticketsupport.bot.Bot;
 import io.nilsdev.discordticketsupport.bot.command.TicketCommand;
 import io.nilsdev.discordticketsupport.common.models.GuildModel;
 import io.nilsdev.discordticketsupport.common.repositories.GuildRepository;

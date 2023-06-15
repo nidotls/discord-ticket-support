@@ -30,7 +30,6 @@ import io.nilsdev.discordticketsupport.bot.utils.VersionUtil;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.sharding.ShardManager;
 
 public class PresenceUpdateTask implements Runnable {

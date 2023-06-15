@@ -27,7 +27,6 @@ package io.nilsdev.discordticketsupport.bot.command;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;

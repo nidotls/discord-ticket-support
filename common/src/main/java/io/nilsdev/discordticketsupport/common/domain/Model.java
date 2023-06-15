@@ -25,10 +25,10 @@
 
 package io.nilsdev.discordticketsupport.common.domain;
 
-import lombok.*;
-import org.bson.types.ObjectId;
 import dev.morphia.annotations.Id;
 import dev.morphia.annotations.PrePersist;
+import lombok.*;
+import org.bson.types.ObjectId;
 
 import java.util.Date;
 

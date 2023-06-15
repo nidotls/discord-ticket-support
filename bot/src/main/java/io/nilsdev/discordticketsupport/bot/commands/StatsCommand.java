@@ -25,6 +25,7 @@
 
 package io.nilsdev.discordticketsupport.bot.commands;
 
+import com.google.inject.Singleton;
 import io.nilsdev.discordticketsupport.bot.command.TicketCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
@@ -32,6 +33,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 
 import java.util.List;
 
+@Singleton
 public class StatsCommand extends TicketCommand {
     public StatsCommand() {
         super("stats", "");

@@ -25,14 +25,12 @@
 
 package io.nilsdev.discordticketsupport.bot.commands;
 
+import com.google.inject.Singleton;
 import io.nilsdev.discordticketsupport.bot.command.TicketCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.sharding.ShardManager;
 
+@Singleton
 public class PingCommand extends TicketCommand {
     public PingCommand() {
         super("ping", "");

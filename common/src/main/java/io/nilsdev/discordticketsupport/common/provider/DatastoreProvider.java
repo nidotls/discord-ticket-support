@@ -34,15 +34,12 @@ import dev.morphia.Morphia;
 import io.nilsdev.discordticketsupport.common.config.Config;
 import io.nilsdev.discordticketsupport.common.models.GuildModel;
 import io.nilsdev.discordticketsupport.common.models.StatsModel;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Objects;
 
+@Slf4j
 public class DatastoreProvider implements Provider<Datastore> {
-
-    private final Logger logger = LogManager.getLogger(DatastoreProvider.class);
 
     private final MongoClient mongoClient;
     private final MongoClientURI mongoClientURI;
@@ -61,7 +58,7 @@ public class DatastoreProvider implements Provider<Datastore> {
         try {
             datastore.getMapper().map(GuildModel.class, StatsModel.class);
         } catch (Throwable t) {
-            this.logger.log(Level.ERROR, "Could not map models", t);
+            log.error("Could not map models", t);
         }
 
         String modelPackage = "io.nilsdev.discordticketsupport.common.models";
@@ -69,14 +66,13 @@ public class DatastoreProvider implements Provider<Datastore> {
         try {
             datastore.getMapper().mapPackage(modelPackage);
         } catch (Throwable t) {
-            this.logger.warn("Could not map package " + modelPackage);
-            // this.moduleConfig.getLogger().log(Level.SEVERE, "Could not map package " + this.moduleConfig.getModelPackage(), t);
+            log.warn("Could not map package " + modelPackage);
         }
 
         try {
             datastore.ensureIndexes();
         } catch (Throwable t) {
-            this.logger.log(Level.ERROR, "Could not ensure indexes", t);
+            log.error("Could not ensure indexes", t);
         }
 
         return datastore;

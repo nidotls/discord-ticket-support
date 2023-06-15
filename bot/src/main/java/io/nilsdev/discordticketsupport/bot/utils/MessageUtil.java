@@ -26,7 +26,7 @@
 package io.nilsdev.discordticketsupport.bot.utils;
 
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
 
 public class MessageUtil {
 
@@ -39,6 +39,6 @@ public class MessageUtil {
             }
 
             message.delete().queue();
-        }, logger::throwing);
+        }, throwable -> logger.error("Could not dispose message in channel " + channel + " with text " + text, throwable));
     }
 }
