@@ -31,7 +31,10 @@ import io.nilsdev.discordticketsupport.common.repositories.StatsRepository;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.sharding.ShardManager;
 
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class StatsTask implements Runnable {
 
@@ -46,21 +49,48 @@ public class StatsTask implements Runnable {
 
     @Override
     public void run() {
+        List<StatsModel> historicalStats = statsRepository.getAllStats();
+
         AtomicInteger totalGuilds = new AtomicInteger();
         AtomicInteger totalMembers = new AtomicInteger();
+        AtomicLong totalMessagesSent = new AtomicLong();
+
+        Map<String, Integer> memberCountByStatus = new HashMap<>();
+        Map<String, Integer> channelCountByType = new HashMap<>();
 
         this.shardManager.getShards().forEach(jda -> {
             for (Guild guild : jda.getGuilds()) {
                 totalGuilds.incrementAndGet();
                 totalMembers.addAndGet(guild.getMemberCount());
+
+                collectMemberCountsByStatus(memberCountByStatus, guild);
+
+                collectChannelCountsByType(channelCountByType, guild);
             }
         });
 
-        StatsModel statsModel = StatsModel.builder()
+        StatsModel currentStats = StatsModel.builder()
                 .guilds(totalGuilds.get())
                 .members(totalMembers.get())
+                .messagesSent(totalMessagesSent.get())
+                .memberCountByStatus(memberCountByStatus)
+                .channelCountByType(channelCountByType)
                 .build();
 
-        this.statsRepository.save(statsModel);
+        statsRepository.save(currentStats);
+
+        performComplexAnalysis(historicalStats);
+    }
+
+    private void collectMemberCountsByStatus(Map<String, Integer> memberCountByStatus, Guild guild) {
+        
+    }
+
+    private void collectChannelCountsByType(Map<String, Integer> channelCountByType, Guild guild) {
+        
+    }
+
+    private void performComplexAnalysis(List<StatsModel> historicalStats) {
+       
     }
 }
