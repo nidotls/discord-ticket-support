@@ -25,20 +25,18 @@
 
 package io.nilsdev.discordticketsupport.bot.config;
 
-import io.nilsdev.discordticketsupport.bot.Bot;
 import lombok.Getter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Objects;
 import java.util.Properties;
 
 @Getter
 public class ConfigProperties {
 
+    private final Logger logger = LoggerFactory.getLogger(ConfigProperties.class);
     private final boolean debug;
     private final String discordToken;
     private final int discordShardsTotal;
@@ -49,16 +47,16 @@ public class ConfigProperties {
     private Properties properties;
 
     public ConfigProperties() {
-        this.debug = this.getBoolean("DEBUG", false);
-        this.discordToken = this.getString("DISCORD_TOKEN");
-        this.discordShardsTotal = this.getInteger("DISCORD_SHARDS_TOTAL", 3);
-        this.discordShardsMin = this.getInteger("DISCORD_SHARDS_MIN", 0);
-        this.discordShardsMax = this.getInteger("DISCORD_SHARDS_MAX", 2);
-        this.mongodbUri = this.getString("MONGODB_URI");
+        this.debug = getBoolean("DEBUG", false);
+        this.discordToken = getString("DISCORD_TOKEN");
+        this.discordShardsTotal = getInteger("DISCORD_SHARDS_TOTAL", 3);
+        this.discordShardsMin = getInteger("DISCORD_SHARDS_MIN", 0);
+        this.discordShardsMax = getInteger("DISCORD_SHARDS_MAX", 2);
+        this.mongodbUri = getString("MONGODB_URI");
     }
 
     private String getString(String path) {
-        return this.getString(path, null);
+        return getString(path, null);
     }
 
     private String getString(String path, String def) {
@@ -68,7 +66,7 @@ public class ConfigProperties {
             return env;
         }
 
-        String property = this.getProperties().getProperty(path.replaceAll("_", ".").toLowerCase());
+        String property = getProperties().getProperty(path.replaceAll("_", ".").toLowerCase());
 
         if (property != null) {
             return property;
@@ -78,7 +76,7 @@ public class ConfigProperties {
     }
 
     private Integer getInteger(String path) {
-        return this.getInteger(path, null);
+        return getInteger(path, null);
     }
 
     private Integer getInteger(String path, Integer def) {
@@ -88,7 +86,7 @@ public class ConfigProperties {
             return Integer.valueOf(env);
         }
 
-        String property = this.getProperties().getProperty(path.replaceAll("_", ".").toLowerCase());
+        String property = getProperties().getProperty(path.replaceAll("_", ".").toLowerCase());
 
         if (property != null) {
             return Integer.valueOf(property);
@@ -98,7 +96,7 @@ public class ConfigProperties {
     }
 
     private Boolean getBoolean(String path) {
-        return this.getBoolean(path, null);
+        return getBoolean(path, null);
     }
 
     private Boolean getBoolean(String path, Boolean def) {
@@ -108,7 +106,7 @@ public class ConfigProperties {
             return Boolean.parseBoolean(env);
         }
 
-        String property = this.getProperties().getProperty(path.replaceAll("_", ".").toLowerCase());
+        String property = getProperties().getProperty(path.replaceAll("_", ".").toLowerCase());
 
         if (property != null) {
             return Boolean.parseBoolean(property);
@@ -122,26 +120,21 @@ public class ConfigProperties {
             return this.properties;
         }
 
-        File file = new File("bot.properties");
-        Path path = file.toPath();
-
-        if (!file.exists()) {
-            try (InputStream input = Bot.class.getClassLoader().getResourceAsStream("bot.properties")) {
-
-                Files.copy(Objects.requireNonNull(input), path);
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-        }
-
-        this.properties = new Properties();
-
-        try (InputStream input = Files.newInputStream(path)) {
-            this.properties.load(input);
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-
+        this.properties = loadProperties();
         return this.properties;
+    }
+
+    private Properties loadProperties() {
+        Properties properties = new Properties();
+        try (InputStream input = ConfigProperties.class.getClassLoader().getResourceAsStream("bot.properties")) {
+            if (input != null) {
+                properties.load(input);
+            } else {
+                logger.error("Configuration file 'bot.properties' not found in resources.");
+            }
+        } catch (IOException ex) {
+            logger.error("Error loading configuration file.", ex);
+        }
+        return properties;
     }
 }

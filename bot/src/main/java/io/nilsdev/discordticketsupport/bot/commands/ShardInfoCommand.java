@@ -28,35 +28,41 @@ package io.nilsdev.discordticketsupport.bot.commands;
 import com.google.inject.Singleton;
 import io.nilsdev.discordticketsupport.bot.command.TicketCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.sharding.ShardManager;
 
 @Singleton
 public class ShardInfoCommand extends TicketCommand {
     public ShardInfoCommand() {
-        super("shardinfo", "");
+        super("shardinfo", "Zeigt Informationen über die Shards des Bots an");
     }
 
     @Override
     public void process(SlashCommandInteractionEvent event) {
+        final JDA jda = event.getJDA();
+        final ShardManager shardManager = jda.getShardManager();
+        final JDA.ShardInfo shardInfo = jda.getShardInfo();
+
         event.deferReply(true).queue();
 
-        JDA.ShardInfo shardInfo = event.getJDA().getShardInfo();
-        ShardManager shardManager = event.getJDA().getShardManager();
+        final EmbedBuilder embedBuilder = buildShardInfoEmbed(shardInfo, shardManager);
+        event.getHook().sendMessageEmbeds(embedBuilder.build()).queue();
+    }
 
+    private EmbedBuilder buildShardInfoEmbed(JDA.ShardInfo shardInfo, ShardManager shardManager) {
         final EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setTitle("Shard Info " + shardInfo.getShardString());
 
-        shardManager.getStatuses().forEach((jda, status) -> embedBuilder.addField("Shard " + jda.getShardInfo().getShardString(),
-                " - Status: " + status + "\n" +
-                        " - Gilden: " + jda.getGuilds().size() + "\n" +
-                        " - Mitglieder: " + jda.getGuilds().stream().mapToInt(Guild::getMemberCount).sum() + "\n" +
-                        " - Ping: " + jda.getGatewayPing(),
-                false)
-        );
+        shardManager.getStatuses().forEach((jda, status) -> {
+            embedBuilder.addField("Shard " + jda.getShardInfo().getShardString(),
+                String.format(" - Status: %s\n - Gilden: %d\n - Mitglieder: %d\n - Ping: %d",
+                    status,
+                    jda.getGuilds().size(),
+                    jda.getGuilds().stream().mapToInt(Guild::getMemberCount).sum(),
+                    jda.getGatewayPing()
+                ), false
+            );
+        });
 
-        event.getHook().sendMessageEmbeds(embedBuilder.build()).queue();
+        return embedBuilder;
     }
 }
