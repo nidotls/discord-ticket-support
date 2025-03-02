@@ -118,7 +118,7 @@
                     <configuration>
                         <from>
                             <image>
-                                eclipse-temurin:17-jre@sha256:065f78af376f2cfe4b9643866ac19a79deb370fb0387edec47ec9b3f2f63ec29
+                                eclipse-temurin:21-jre@sha256:d9b293682194311c34b54a9449e231c624a05c6e20a71cb044072af3df346eb8
                             </image>
                         </from>
                     </configuration>
