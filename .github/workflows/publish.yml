@@ -25,9 +25,6 @@ jobs:
           distribution: "temurin"
           cache: "maven"
 
-      - name: Build with Maven
-        run: mvn -B package -DskipTests=true
-
       # check if release needed on main branch
       - name: Release with Maven
         run: mvn -B semantic-release:release
