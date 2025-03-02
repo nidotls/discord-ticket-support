@@ -3,7 +3,7 @@ name: Publish Container
 on:
   push:
     branches:
-      - '*'
+      - "*"
 
 env:
   IMAGE_NAME: "discord-ticket-support"
@@ -50,11 +50,6 @@ jobs:
         run: echo ::set-output name=tag::$(git describe --abbrev=0 --tags)
         if: github.ref == 'refs/heads/main' && steps.release.outcome == 'success' && steps.release.conclusion == 'success'
 
-      - name: Get Git Changelog
-        id: get_changelog
-        uses: thenilsdev/git-log-action@1.0.5
-        if: github.ref == 'refs/heads/main' && steps.release.outcome == 'success' && steps.release.conclusion == 'success'
-
       # push the latest docker image
       - name: Docker meta
         id: meta
@@ -88,12 +83,12 @@ jobs:
 
       # release if main branch and release needed
       - name: Create Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         id: create_release
         with:
           tag_name: ${{ steps.current_tag.outputs.tag }}
           name: Release ${{ steps.current_tag.outputs.tag }}
-          body: ${{ steps.get_changelog.outputs.log }}
+          generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ github.token }}
         if: github.ref == 'refs/heads/main' && steps.release.outcome == 'success' && steps.release.conclusion == 'success'
@@ -107,5 +102,4 @@ jobs:
           description: |
             Version `${{ steps.current_tag.outputs.tag }}`
             Click [here](${{ steps.create_release.outputs.url }}) to view!
-            ${{ steps.get_changelog.outputs.markdownLog }}
         if: github.ref == 'refs/heads/main' && steps.release.outcome == 'success' && steps.release.conclusion == 'success'
