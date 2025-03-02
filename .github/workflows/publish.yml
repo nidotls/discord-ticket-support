@@ -3,7 +3,7 @@ name: Publish Container
 on:
   push:
     branches:
-      - "*"
+      - "**"
 
 env:
   IMAGE_NAME: "discord-ticket-support"
