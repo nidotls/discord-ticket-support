@@ -9,9 +9,9 @@ updates:
       time: "09:00"
       timezone: "Europe/Berlin"
     assignees:
-      - "thenilsdev"
+      - "nidotls"
     reviewers:
-      - "thenilsdev"
+      - "nidotls"
   - package-ecosystem: "github-actions"
     directory: "/"
     target-branch: "develop"
@@ -21,6 +21,6 @@ updates:
       time: "09:00"
       timezone: "Europe/Berlin"
     assignees:
-      - "thenilsdev"
+      - "nidotls"
     reviewers:
-      - "thenilsdev"
+      - "nidotls"
