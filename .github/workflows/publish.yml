@@ -7,11 +7,16 @@ on:
 
 env:
   IMAGE_NAME: "discord-ticket-support"
-
+  
 jobs:
   build:
     name: Release CI
     runs-on: ubuntu-latest
+
+    permissions:
+        contents: read
+        packages: write
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
